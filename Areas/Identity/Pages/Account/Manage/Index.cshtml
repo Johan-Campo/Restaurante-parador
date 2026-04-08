@@ -1,0 +1,293 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Mi perfil";
+    ViewData["ActivePage"] = ManageNavPages.Index;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700&display=swap');
+
+    :root {
+        --g50:    #f0f9f4;
+        --g100:   #d4eddf;
+        --g200:   #a8dbbe;
+        --g400:   #4db37a;
+        --g600:   #2d7d52;
+        --g800:   #1a4f33;
+        --accent: #3a9e6a;
+        --text:   #111827;
+        --text2:  #374151;
+        --muted:  #6b7280;
+        --border: #e5e7eb;
+        --surface:#f9fafb;
+        --font-display: 'Fraunces', serif;
+        --font-body:    'DM Sans', sans-serif;
+        --font-mono:    'DM Mono', monospace;
+    }
+
+    .page-header   { margin-bottom: 28px; }
+    .eyebrow {
+        font-family: var(--font-mono);
+        font-size: 0.68rem; letter-spacing: 0.16em;
+        text-transform: uppercase; color: var(--accent);
+        font-weight: 500; margin-bottom: 4px;
+    }
+    .page-header h1 {
+        font-family: var(--font-display);
+        font-size: 1.85rem; color: var(--text); font-weight: 700;
+        letter-spacing: -0.02em; margin-bottom: 4px; line-height: 1.15;
+    }
+    .page-header .sub {
+        font-family: var(--font-body);
+        color: var(--muted); font-size: 0.875rem; margin-bottom: 14px;
+    }
+    .divider-green { width: 36px; height: 3px; background: var(--g400); border-radius: 2px; margin-bottom: 28px; }
+
+    /* Layout dos columnas */
+    .manage-layout {
+        display: grid;
+        grid-template-columns: 210px 1fr;
+        gap: 22px;
+        align-items: start;
+    }
+
+    /* Nav lateral de cuenta */
+    .account-nav {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        overflow: hidden;
+        position: sticky;
+        top: 24px;
+    }
+    .account-nav-header {
+        padding: 13px 16px; background: var(--g800);
+        display: flex; align-items: center; gap: 10px;
+    }
+    .account-nav-header .anav-icon {
+        width: 30px; height: 30px; border-radius: 7px;
+        background: rgba(255,255,255,0.12);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.85); font-size: 0.85rem;
+    }
+    .account-nav-header span {
+        font-family: var(--font-display);
+        font-size: 0.88rem; color: #fff; font-weight: 700;
+    }
+    .account-nav ul { list-style: none; margin: 0; padding: 6px 0; }
+    .account-nav ul li a {
+        display: flex; align-items: center; gap: 10px;
+        padding: 9px 16px;
+        font-family: var(--font-body);
+        font-size: 0.845rem; font-weight: 400;
+        color: var(--text2); text-decoration: none;
+        border-left: 2px solid transparent;
+        transition: background 0.12s, color 0.12s;
+    }
+    .account-nav ul li a i {
+        width: 15px; text-align: center; font-size: 0.78rem;
+        color: var(--muted); flex-shrink: 0; transition: color 0.12s;
+    }
+    .account-nav ul li a:hover { background: var(--g50); color: var(--g600); text-decoration: none; }
+    .account-nav ul li a:hover i { color: var(--accent); }
+    .account-nav ul li a.active {
+        background: var(--g50); color: var(--g800);
+        border-left-color: var(--g400); font-weight: 500;
+    }
+    .account-nav ul li a.active i { color: var(--accent); }
+    .account-nav ul li.sep { height: 1px; background: var(--border); margin: 5px 12px; }
+
+    /* Form card */
+    .form-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
+    .form-card-header {
+        padding: 16px 22px; background: var(--g800);
+        display: flex; align-items: center; gap: 12px;
+    }
+    .form-card-header .header-icon {
+        width: 36px; height: 36px; border-radius: 9px;
+        background: rgba(255,255,255,0.12);
+        display: flex; align-items: center; justify-content: center;
+        color: rgba(255,255,255,0.85); font-size: 1rem; flex-shrink: 0;
+    }
+    .form-card-header h5 {
+        font-family: var(--font-display);
+        font-size: 1rem; color: #fff; font-weight: 700; margin: 0;
+    }
+    .form-card-header p {
+        font-family: var(--font-body);
+        font-size: 0.72rem; color: rgba(255,255,255,0.5); margin: 2px 0 0;
+    }
+    .form-card-body { padding: 24px 26px; }
+
+    /* Avatar */
+    .profile-avatar-block {
+        display: flex; align-items: center; gap: 16px;
+        padding-bottom: 20px; margin-bottom: 22px;
+        border-bottom: 1px solid var(--border);
+    }
+    .avatar-circle {
+        width: 56px; height: 56px; border-radius: 50%;
+        background: var(--g100); border: 2px solid var(--g200);
+        display: flex; align-items: center; justify-content: center;
+        font-family: var(--font-display);
+        font-size: 1.35rem; color: var(--g800); font-weight: 700; flex-shrink: 0;
+    }
+    .avatar-info-name {
+        font-family: var(--font-body);
+        font-size: 0.95rem; font-weight: 600; color: var(--text); margin-bottom: 3px;
+    }
+    .avatar-info-role {
+        font-family: var(--font-mono);
+        font-size: 0.68rem; color: var(--accent);
+        letter-spacing: 0.07em; text-transform: uppercase;
+    }
+
+    /* Fields */
+    .field-group { margin-bottom: 18px; }
+    .field-label {
+        display: block; font-family: var(--font-body);
+        font-size: 0.78rem; font-weight: 500; color: var(--text2); margin-bottom: 5px;
+    }
+    .field-hint { font-family: var(--font-body); font-size: 0.72rem; color: var(--muted); margin-top: 4px; }
+    .form-control-custom {
+        width: 100%; padding: 9px 13px;
+        border: 1.5px solid var(--border); border-radius: 8px;
+        font-family: var(--font-body);
+        font-size: 0.875rem; color: var(--text); background: var(--surface);
+        transition: border-color 0.15s, box-shadow 0.15s;
+        outline: none; appearance: none;
+    }
+    .form-control-custom:focus {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(58,158,106,0.1);
+        background: #fff;
+    }
+    .form-control-custom:disabled {
+        background: #f0f2f0; color: #999; cursor: not-allowed; border-color: #e8ebe8;
+    }
+
+    /* Button */
+    .btn-save {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 24px; background: var(--accent); color: #fff;
+        border: none; border-radius: 8px;
+        font-family: var(--font-body);
+        font-size: 0.875rem; font-weight: 600;
+        cursor: pointer; transition: background 0.15s;
+    }
+    .btn-save:hover { background: var(--g600); }
+
+    @@media (max-width: 720px) {
+        .manage-layout { grid-template-columns: 1fr; }
+        .account-nav { position: static; }
+    }
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Cuenta</div>
+    <h1>Mi perfil</h1>
+    <p class="sub">Administra tu información personal y configuración</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="manage-layout">
+
+    <!-- NAV LATERAL -->
+    <div class="account-nav">
+        <div class="account-nav-header">
+            <div class="anav-icon"><i class="fas fa-user-cog"></i></div>
+            <span>Cuenta</span>
+        </div>
+        <ul>
+            <li>
+                <a class="@ManageNavPages.IndexNavClass(ViewContext)" asp-page="./Index">
+                    <i class="fas fa-user"></i> Perfil
+                </a>
+            </li>
+            <li>
+                <a class="@ManageNavPages.EmailNavClass(ViewContext)" asp-page="./Email">
+                    <i class="fas fa-envelope"></i> Correo
+                </a>
+            </li>
+            <li>
+                <a class="@ManageNavPages.ChangePasswordNavClass(ViewContext)" asp-page="./ChangePassword">
+                    <i class="fas fa-lock"></i> Contraseña
+                </a>
+            </li>
+            <li class="sep"></li>
+            <li>
+                <a class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" asp-page="./TwoFactorAuthentication">
+                    <i class="fas fa-shield-alt"></i> Doble factor
+                </a>
+            </li>
+            <li>
+                <a class="@ManageNavPages.PersonalDataNavClass(ViewContext)" asp-page="./PersonalData">
+                    <i class="fas fa-database"></i> Datos personales
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="form-card">
+        <div class="form-card-header">
+            <div class="header-icon"><i class="fas fa-id-card"></i></div>
+            <div>
+                <h5>Información del perfil</h5>
+                <p>Actualiza tu nombre de usuario y teléfono</p>
+            </div>
+        </div>
+        <div class="form-card-body">
+
+            <partial name="_StatusMessage" for="StatusMessage" />
+
+            <div class="profile-avatar-block">
+                <div class="avatar-circle">
+                    @(string.IsNullOrEmpty(Model.Username) ? "U" : Model.Username[0].ToString().ToUpper())
+                </div>
+                <div>
+                    <div class="avatar-info-name">@Model.Username</div>
+                    <div class="avatar-info-role">Usuario registrado</div>
+                </div>
+            </div>
+
+            <form id="profile-form" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"
+                     style="font-family:var(--font-body);font-size:0.845rem;margin-bottom:14px;"></div>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="field-group">
+                            <label class="field-label">Nombre de usuario</label>
+                            <input asp-for="Username" class="form-control-custom"
+                                   placeholder="Tu nombre de usuario" disabled />
+                            <div class="field-hint">El nombre de usuario no puede modificarse.</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="field-group">
+                            <label class="field-label" asp-for="Input.PhoneNumber">Teléfono</label>
+                            <input asp-for="Input.PhoneNumber" class="form-control-custom"
+                                   placeholder="Ej: +57 300 000 0000" />
+                            <span asp-validation-for="Input.PhoneNumber" class="text-danger"
+                                  style="font-family:var(--font-body);font-size:0.78rem;"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-end mt-3">
+                    <button id="update-profile-button" type="submit" class="btn-save">
+                        <i class="fas fa-save"></i>
+                        Guardar cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

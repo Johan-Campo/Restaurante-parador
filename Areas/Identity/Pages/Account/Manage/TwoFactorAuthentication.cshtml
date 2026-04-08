@@ -1,0 +1,216 @@
+﻿@page
+@model TwoFactorAuthenticationModel
+@{
+    ViewData["Title"] = "Autenticación de dos factores";
+    ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700&display=swap');
+
+    :root {
+        --g50:#f0f9f4; --g100:#d4eddf; --g200:#a8dbbe; --g400:#4db37a;
+        --g600:#2d7d52; --g800:#1a4f33; --accent:#3a9e6a;
+        --cyan:#0891b2; --cyan-soft:#ecfeff; --cyan-border:#a5f3fc;
+        --text:#111827; --text2:#374151; --muted:#6b7280;
+        --border:#e5e7eb; --surface:#f9fafb;
+        --font-display:'Fraunces',serif;
+        --font-body:'DM Sans',sans-serif;
+        --font-mono:'DM Mono',monospace;
+    }
+
+    .page-header { margin-bottom: 28px; }
+    .eyebrow { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 1.85rem; color: var(--text); font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; line-height: 1.15; }
+    .page-header .sub { font-family: var(--font-body); color: var(--muted); font-size: .875rem; margin-bottom: 14px; }
+    .divider-green { width: 36px; height: 3px; background: var(--g400); border-radius: 2px; margin-bottom: 28px; }
+
+    .manage-layout { display: grid; grid-template-columns: 210px 1fr; gap: 22px; align-items: start; }
+
+    .account-nav { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: sticky; top: 24px; }
+    .account-nav-header { padding: 13px 16px; background: var(--g800); display: flex; align-items: center; gap: 10px; }
+    .account-nav-header .anav-icon { width: 30px; height: 30px; border-radius: 7px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); font-size: .85rem; }
+    .account-nav-header span { font-family: var(--font-display); font-size: .88rem; color: #fff; font-weight: 700; }
+    .account-nav ul { list-style: none; margin: 0; padding: 6px 0; }
+    .account-nav ul li a { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-family: var(--font-body); font-size: .845rem; font-weight: 400; color: var(--text2); text-decoration: none; border-left: 2px solid transparent; transition: background .12s, color .12s; }
+    .account-nav ul li a i { width: 15px; text-align: center; font-size: .78rem; color: var(--muted); flex-shrink: 0; transition: color .12s; }
+    .account-nav ul li a:hover { background: var(--g50); color: var(--g600); text-decoration: none; }
+    .account-nav ul li a:hover i { color: var(--accent); }
+    .account-nav ul li a.active { background: var(--g50); color: var(--g800); border-left-color: var(--g400); font-weight: 500; }
+    .account-nav ul li a.active i { color: var(--accent); }
+    .account-nav ul li.sep { height: 1px; background: var(--border); margin: 5px 12px; }
+
+    .content-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 18px; }
+    .card-header { padding: 16px 22px; background: var(--g800); display: flex; align-items: center; gap: 12px; }
+    .card-header .header-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); font-size: 1rem; flex-shrink: 0; }
+    .card-header h5 { font-family: var(--font-display); font-size: 1rem; color: #fff; font-weight: 700; margin: 0; }
+    .card-header p { font-family: var(--font-body); font-size: .72rem; color: rgba(255,255,255,.5); margin: 2px 0 0; }
+    .card-body { padding: 24px 26px; }
+
+    /* Status card 2FA */
+    .twofa-status {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 16px 20px; border-radius: 12px; margin-bottom: 22px;
+        flex-wrap: wrap; gap: 14px;
+    }
+    .twofa-status.enabled  { background: var(--g50);   border: 1px solid var(--g100); }
+    .twofa-status.disabled { background: #fef3c7; border: 1px solid #fde68a; }
+
+    .status-left { display: flex; align-items: center; gap: 13px; }
+    .status-icon { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+    .twofa-status.enabled  .status-icon { background: var(--g100); color: var(--g800); }
+    .twofa-status.disabled .status-icon { background: #fde68a;     color: #92400e; }
+    .status-title { font-family: var(--font-display); font-size: .95rem; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+    .status-desc  { font-family: var(--font-body);    font-size: .78rem; color: var(--muted); }
+
+    .status-badge-on  { display: inline-flex; align-items: center; gap: 5px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 20px; padding: 5px 14px; font-family: var(--font-mono); font-size: .7rem; color: #16a34a; font-weight: 600; }
+    .status-badge-off { display: inline-flex; align-items: center; gap: 5px; background: #fef3c7; border: 1px solid #fde68a; border-radius: 20px; padding: 5px 14px; font-family: var(--font-mono); font-size: .7rem; color: #92400e; font-weight: 600; }
+
+    /* Acción cards */
+    .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .action-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px 18px; }
+    .action-item-icon { width: 36px; height: 36px; border-radius: 9px; background: var(--g50); border: 1px solid var(--g100); display: flex; align-items: center; justify-content: center; color: var(--accent); font-size: .9rem; margin-bottom: 10px; }
+    .action-item-icon.cyan-icon { background: var(--cyan-soft); border-color: var(--cyan-border); color: var(--cyan); }
+    .action-item h6 { font-family: var(--font-display); font-size: .875rem; color: var(--text); font-weight: 700; margin-bottom: 5px; }
+    .action-item p  { font-family: var(--font-body);    font-size: .78rem;  color: var(--muted); margin-bottom: 12px; line-height: 1.45; }
+
+    .btn-action { display: inline-flex; align-items: center; gap: 7px; padding: 8px 18px; background: var(--accent); color: #fff; border: none; border-radius: 7px; font-family: var(--font-body); font-size: .835rem; font-weight: 600; cursor: pointer; transition: background .15s; text-decoration: none; }
+    .btn-action:hover { background: var(--g600); color: #fff; text-decoration: none; }
+    .btn-action.cyan { background: var(--cyan); }
+    .btn-action.cyan:hover { background: #0e7490; }
+    .btn-action.outline { background: #fff; color: var(--text2); border: 1px solid var(--border); }
+    .btn-action.outline:hover { border-color: var(--g200); color: var(--g800); }
+    .btn-action.danger { background: #dc2626; }
+    .btn-action.danger:hover { background: #b91c1c; }
+
+    .info-box { background: var(--g50); border: 1px solid var(--g100); border-radius: 10px; padding: 13px 16px; display: flex; align-items: flex-start; gap: 11px; margin-bottom: 22px; }
+    .info-box i { color: var(--accent); font-size: .9rem; margin-top: 1px; flex-shrink: 0; }
+    .info-box p { font-family: var(--font-body); font-size: .82rem; color: var(--g600); margin: 0; line-height: 1.5; }
+
+    @@media (max-width:720px) { .manage-layout { grid-template-columns: 1fr; } .account-nav { position: static; } .action-grid { grid-template-columns: 1fr; } }
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Cuenta</div>
+    <h1>Autenticación de dos factores</h1>
+    <p class="sub">Añade una capa extra de seguridad a tu cuenta</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="manage-layout">
+
+    <div class="account-nav">
+        <div class="account-nav-header">
+            <div class="anav-icon"><i class="fas fa-user-cog"></i></div>
+            <span>Cuenta</span>
+        </div>
+        <ul>
+            <li><a class="@ManageNavPages.IndexNavClass(ViewContext)" asp-page="./Index"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a class="@ManageNavPages.EmailNavClass(ViewContext)" asp-page="./Email"><i class="fas fa-envelope"></i> Correo</a></li>
+            <li><a class="@ManageNavPages.ChangePasswordNavClass(ViewContext)" asp-page="./ChangePassword"><i class="fas fa-lock"></i> Contraseña</a></li>
+            <li class="sep"></li>
+            <li><a class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" asp-page="./TwoFactorAuthentication"><i class="fas fa-shield-alt"></i> Doble factor</a></li>
+            <li><a class="@ManageNavPages.PersonalDataNavClass(ViewContext)" asp-page="./PersonalData"><i class="fas fa-database"></i> Datos personales</a></li>
+        </ul>
+    </div>
+
+    <div>
+        <partial name="_StatusMessage" for="StatusMessage" />
+
+        <!-- Estado actual del 2FA -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="header-icon"><i class="fas fa-shield-halved"></i></div>
+                <div>
+                    <h5>Estado de seguridad</h5>
+                    <p>Estado actual de la autenticación de dos factores</p>
+                </div>
+            </div>
+            <div class="card-body">
+
+                @if (Model.Is2faEnabled)
+                {
+                    <div class="twofa-status enabled">
+                        <div class="status-left">
+                            <div class="status-icon"><i class="fas fa-shield-check"></i></div>
+                            <div>
+                                <div class="status-title">Protección activa</div>
+                                <div class="status-desc">La autenticación de dos factores está habilitada en tu cuenta.</div>
+                            </div>
+                        </div>
+                        <span class="status-badge-on"><i class="fas fa-circle-check"></i> Habilitado</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="twofa-status disabled">
+                        <div class="status-left">
+                            <div class="status-icon"><i class="fas fa-shield-exclamation"></i></div>
+                            <div>
+                                <div class="status-title">Sin protección adicional</div>
+                                <div class="status-desc">La autenticación de dos factores no está activada.</div>
+                            </div>
+                        </div>
+                        <span class="status-badge-off"><i class="fas fa-circle-xmark"></i> Deshabilitado</span>
+                    </div>
+                }
+
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>La autenticación de dos factores añade una segunda verificación al iniciar sesión, haciendo tu cuenta mucho más segura incluso si tu contraseña es comprometida.</p>
+                </div>
+
+                <!-- Acciones disponibles -->
+                <div class="action-grid">
+                    @if (!Model.HasAuthenticator)
+                    {
+                        <div class="action-item">
+                            <div class="action-item-icon cyan-icon"><i class="fas fa-mobile-screen"></i></div>
+                            <h6>Configurar app autenticadora</h6>
+                            <p>Usa Google Authenticator, Microsoft Authenticator u otra app compatible.</p>
+                            <a asp-page="./EnableAuthenticator" class="btn-action cyan">
+                                <i class="fas fa-qrcode"></i> Configurar
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="action-item">
+                            <div class="action-item-icon cyan-icon"><i class="fas fa-mobile-screen"></i></div>
+                            <h6>App autenticadora</h6>
+                            <p>Ya tienes una app autenticadora configurada. Puedes restablecerla si cambiaste de dispositivo.</p>
+                            <a asp-page="./ResetAuthenticator" class="btn-action outline">
+                                <i class="fas fa-rotate"></i> Restablecer app
+                            </a>
+                        </div>
+                    }
+
+                    @if (Model.Is2faEnabled)
+                    {
+                        <div class="action-item">
+                            <div class="action-item-icon"><i class="fas fa-key"></i></div>
+                            <h6>Códigos de recuperación</h6>
+                            <p>Tienes <strong>@Model.RecoveryCodesLeft</strong> código(s) de recuperación disponibles.</p>
+                            <a asp-page="./GenerateRecoveryCodes" class="btn-action">
+                                <i class="fas fa-arrows-rotate"></i> Generar códigos
+                            </a>
+                        </div>
+
+                        <div class="action-item">
+                            <div class="action-item-icon" style="background:#fef2f2;border-color:#fecaca;color:#dc2626;">
+                                <i class="fas fa-shield-xmark"></i>
+                            </div>
+                            <h6>Deshabilitar 2FA</h6>
+                            <p>Desactiva la autenticación de dos factores. Reducirá la seguridad de tu cuenta.</p>
+                            <a asp-page="./Disable2fa" class="btn-action danger">
+                                <i class="fas fa-toggle-off"></i> Deshabilitar
+                            </a>
+                        </div>
+                    }
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>

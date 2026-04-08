@@ -1,0 +1,208 @@
+﻿@page
+@model LogoutModel
+@{
+    ViewData["Title"] = "Cerrar sesión";
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,700;1,700&display=swap');
+
+    :root {
+        --g50:    #f0f9f4;
+        --g100:   #d4eddf;
+        --g200:   #a8dbbe;
+        --g400:   #4db37a;
+        --g600:   #2d7d52;
+        --g800:   #1a4f33;
+        --accent: #3a9e6a;
+        --text:   #111827;
+        --muted:  #6b7280;
+        --border: #e5e7eb;
+        --font-display: 'Fraunces', serif;
+        --font-body:    'DM Sans', sans-serif;
+        --font-mono:    'DM Mono', monospace;
+    }
+
+    body { font-family: var(--font-body); }
+
+    /* Centrar el card de logout en pantalla */
+    .logout-wrapper {
+        min-height: 60vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 16px;
+    }
+
+    .logout-card {
+        background: #fff;
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        overflow: hidden;
+        width: 100%;
+        max-width: 420px;
+        text-align: center;
+    }
+
+    /* Cabecera verde oscura */
+    .logout-card-header {
+        background: var(--g800);
+        padding: 28px 28px 24px;
+    }
+    .logout-icon-wrap {
+        width: 56px; height: 56px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.12);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 14px;
+        font-size: 1.4rem;
+        color: rgba(255,255,255,0.88);
+    }
+    .logout-card-header h2 {
+        font-family: var(--font-display);
+        font-size: 1.5rem; color: #fff;
+        font-weight: 700; margin: 0 0 4px;
+    }
+    .logout-card-header p {
+        font-family: var(--font-body);
+        font-size: 0.78rem; color: rgba(255,255,255,0.5); margin: 0;
+    }
+
+    /* Cuerpo */
+    .logout-card-body { padding: 28px; }
+
+    .logout-message {
+        font-family: var(--font-body);
+        font-size: 0.9rem; color: var(--muted);
+        line-height: 1.6; margin-bottom: 24px;
+    }
+
+    /* Botón principal logout */
+    .btn-logout {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%;
+        padding: 11px 24px;
+        background: var(--accent); color: #fff;
+        border: none; border-radius: 9px;
+        font-family: var(--font-body);
+        font-size: 0.9rem; font-weight: 600;
+        cursor: pointer; transition: background 0.15s;
+        text-decoration: none;
+    }
+    .btn-logout:hover { background: var(--g600); color: #fff; }
+
+    /* Botón secundario volver */
+    .btn-back {
+        display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+        width: 100%;
+        padding: 10px 24px;
+        background: transparent; color: var(--muted);
+        border: 1.5px solid var(--border); border-radius: 9px;
+        font-family: var(--font-body);
+        font-size: 0.875rem; font-weight: 500;
+        cursor: pointer; transition: all 0.15s;
+        text-decoration: none; margin-top: 10px;
+    }
+    .btn-back:hover { border-color: var(--g200); color: var(--g600); background: var(--g50); text-decoration: none; }
+
+    /* Estado: ya cerró sesión */
+    .already-logged-out {
+        padding: 36px 28px;
+    }
+    .check-icon {
+        width: 52px; height: 52px; border-radius: 50%;
+        background: var(--g50); border: 1px solid var(--g100);
+        display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 16px;
+        font-size: 1.2rem; color: var(--accent);
+    }
+    .already-logged-out h3 {
+        font-family: var(--font-display);
+        font-size: 1.25rem; color: var(--text);
+        font-weight: 700; margin-bottom: 8px;
+    }
+    .already-logged-out p {
+        font-family: var(--font-body);
+        font-size: 0.875rem; color: var(--muted);
+        margin-bottom: 22px;
+    }
+    .btn-login {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 10px 28px;
+        background: var(--accent); color: #fff;
+        border-radius: 9px;
+        font-family: var(--font-body);
+        font-size: 0.875rem; font-weight: 600;
+        text-decoration: none; transition: background 0.15s;
+    }
+    .btn-login:hover { background: var(--g600); color: #fff; text-decoration: none; }
+
+    .eyebrow-tag {
+        font-family: var(--font-mono);
+        font-size: 0.65rem; letter-spacing: 0.14em;
+        text-transform: uppercase; color: rgba(255,255,255,0.4);
+        margin-bottom: 8px;
+    }
+</style>
+
+<div class="logout-wrapper">
+    <div class="logout-card">
+
+        @if (User.Identity?.IsAuthenticated ?? false)
+        {
+            <!-- Usuario autenticado: mostrar confirmación de logout -->
+            <div class="logout-card-header">
+                <div class="logout-icon-wrap">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <div class="eyebrow-tag">Sesión activa</div>
+                <h2>¿Cerrar sesión?</h2>
+                <p>Estadero Parador Turístico</p>
+            </div>
+            <div class="logout-card-body">
+                <p class="logout-message">
+                    Estás a punto de cerrar tu sesión. Necesitarás ingresar tus credenciales para volver a acceder al sistema.
+                </p>
+
+                <form asp-area="Identity"
+                      asp-page="/Account/Logout"
+                      asp-route-returnUrl="@Url.Page("/Account/Login", new { area = "Identity" })"
+                      method="post">
+                    <button type="submit" class="btn-logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Sí, cerrar sesión
+                    </button>
+                </form>
+
+                <a href="javascript:history.back()" class="btn-back">
+                    <i class="fas fa-arrow-left"></i>
+                    Cancelar y volver
+                </a>
+            </div>
+        }
+        else
+        {
+            <!-- Usuario ya cerró sesión: confirmación y enlace al login -->
+            <div class="logout-card-header">
+                <div class="logout-icon-wrap">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="eyebrow-tag">Sesión cerrada</div>
+                <h2>¡Hasta pronto!</h2>
+                <p>Estadero Parador Turístico</p>
+            </div>
+            <div class="already-logged-out">
+                <div class="check-icon">
+                    <i class="fas fa-check"></i>
+                </div>
+                <h3>Sesión cerrada</h3>
+                <p>Has cerrado sesión correctamente. Puedes volver a ingresar cuando lo necesites.</p>
+                <a asp-area="Identity" asp-page="/Account/Login" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Volver a ingresar
+                </a>
+            </div>
+        }
+
+    </div>
+</div>

@@ -1,0 +1,142 @@
+﻿@page
+@model PersonalDataModel
+@{
+    ViewData["Title"] = "Datos personales";
+    ViewData["ActivePage"] = ManageNavPages.PersonalData;
+}
+
+<style>
+    @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:opsz,wght@9..144,700&display=swap');
+
+    :root {
+        --g50:#f0f9f4; --g100:#d4eddf; --g200:#a8dbbe; --g400:#4db37a;
+        --g600:#2d7d52; --g800:#1a4f33; --accent:#3a9e6a;
+        --text:#111827; --text2:#374151; --muted:#6b7280;
+        --border:#e5e7eb; --surface:#f9fafb;
+        --font-display:'Fraunces',serif;
+        --font-body:'DM Sans',sans-serif;
+        --font-mono:'DM Mono',monospace;
+    }
+
+    .page-header { margin-bottom: 28px; }
+    .eyebrow { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 4px; }
+    .page-header h1 { font-family: var(--font-display); font-size: 1.85rem; color: var(--text); font-weight: 700; letter-spacing: -.02em; margin-bottom: 4px; line-height: 1.15; }
+    .page-header .sub { font-family: var(--font-body); color: var(--muted); font-size: .875rem; margin-bottom: 14px; }
+    .divider-green { width: 36px; height: 3px; background: var(--g400); border-radius: 2px; margin-bottom: 28px; }
+
+    .manage-layout { display: grid; grid-template-columns: 210px 1fr; gap: 22px; align-items: start; }
+
+    .account-nav { background: #fff; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; position: sticky; top: 24px; }
+    .account-nav-header { padding: 13px 16px; background: var(--g800); display: flex; align-items: center; gap: 10px; }
+    .account-nav-header .anav-icon { width: 30px; height: 30px; border-radius: 7px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); font-size: .85rem; }
+    .account-nav-header span { font-family: var(--font-display); font-size: .88rem; color: #fff; font-weight: 700; }
+    .account-nav ul { list-style: none; margin: 0; padding: 6px 0; }
+    .account-nav ul li a { display: flex; align-items: center; gap: 10px; padding: 9px 16px; font-family: var(--font-body); font-size: .845rem; font-weight: 400; color: var(--text2); text-decoration: none; border-left: 2px solid transparent; transition: background .12s, color .12s; }
+    .account-nav ul li a i { width: 15px; text-align: center; font-size: .78rem; color: var(--muted); flex-shrink: 0; transition: color .12s; }
+    .account-nav ul li a:hover { background: var(--g50); color: var(--g600); text-decoration: none; }
+    .account-nav ul li a:hover i { color: var(--accent); }
+    .account-nav ul li a.active { background: var(--g50); color: var(--g800); border-left-color: var(--g400); font-weight: 500; }
+    .account-nav ul li a.active i { color: var(--accent); }
+    .account-nav ul li.sep { height: 1px; background: var(--border); margin: 5px 12px; }
+
+    .content-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; margin-bottom: 18px; }
+    .card-header { padding: 16px 22px; background: var(--g800); display: flex; align-items: center; gap: 12px; }
+    .card-header.danger-head { background: #991b1b; }
+    .card-header .header-icon { width: 36px; height: 36px; border-radius: 9px; background: rgba(255,255,255,.12); display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.85); font-size: 1rem; flex-shrink: 0; }
+    .card-header h5 { font-family: var(--font-display); font-size: 1rem; color: #fff; font-weight: 700; margin: 0; }
+    .card-header p { font-family: var(--font-body); font-size: .72rem; color: rgba(255,255,255,.5); margin: 2px 0 0; }
+    .card-body { padding: 24px 26px; }
+
+    .info-box { background: var(--g50); border: 1px solid var(--g100); border-radius: 10px; padding: 13px 16px; display: flex; align-items: flex-start; gap: 11px; margin-bottom: 20px; }
+    .info-box i { color: var(--accent); font-size: .9rem; margin-top: 1px; flex-shrink: 0; }
+    .info-box p { font-family: var(--font-body); font-size: .82rem; color: var(--g600); margin: 0; line-height: 1.5; }
+
+    .danger-box { background: #fef2f2; border: 1px solid #fecaca; border-radius: 10px; padding: 14px 18px; display: flex; align-items: flex-start; gap: 11px; margin-bottom: 20px; }
+    .danger-box i { color: #dc2626; font-size: .95rem; margin-top: 1px; flex-shrink: 0; }
+    .danger-box-text h6 { font-family: var(--font-body); font-size: .875rem; font-weight: 600; color: #991b1b; margin-bottom: 4px; }
+    .danger-box-text p  { font-family: var(--font-body); font-size: .82rem; color: #b91c1c; margin: 0; line-height: 1.5; }
+
+    .btn-download { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: var(--accent); color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .15s; text-decoration: none; }
+    .btn-download:hover { background: var(--g600); color: #fff; text-decoration: none; }
+
+    .btn-danger { display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: #dc2626; color: #fff; border: none; border-radius: 8px; font-family: var(--font-body); font-size: .875rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+    .btn-danger:hover { background: #b91c1c; }
+
+    @@media (max-width:720px) { .manage-layout { grid-template-columns: 1fr; } .account-nav { position: static; } }
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Cuenta</div>
+    <h1>Datos personales</h1>
+    <p class="sub">Descarga o elimina los datos de tu cuenta</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="manage-layout">
+
+    <div class="account-nav">
+        <div class="account-nav-header">
+            <div class="anav-icon"><i class="fas fa-user-cog"></i></div>
+            <span>Cuenta</span>
+        </div>
+        <ul>
+            <li><a class="@ManageNavPages.IndexNavClass(ViewContext)" asp-page="./Index"><i class="fas fa-user"></i> Perfil</a></li>
+            <li><a class="@ManageNavPages.EmailNavClass(ViewContext)" asp-page="./Email"><i class="fas fa-envelope"></i> Correo</a></li>
+
+            <li><a class="@ManageNavPages.ChangePasswordNavClass(ViewContext)" asp-page="./ChangePassword"><i class="fas fa-lock"></i> Contraseña</a></li>
+            <li class="sep"></li>
+            <li><a class="@ManageNavPages.TwoFactorAuthenticationNavClass(ViewContext)" asp-page="./TwoFactorAuthentication"><i class="fas fa-shield-alt"></i> Doble factor</a></li>
+            <li><a class="@ManageNavPages.PersonalDataNavClass(ViewContext)" asp-page="./PersonalData"><i class="fas fa-database"></i> Datos personales</a></li>
+        </ul>
+    </div>
+
+    <div>
+        <!-- Descargar datos -->
+        <div class="content-card">
+            <div class="card-header">
+                <div class="header-icon"><i class="fas fa-download"></i></div>
+                <div>
+                    <h5>Descargar mis datos</h5>
+                    <p>Obtén una copia de tu información personal</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="info-box">
+                    <i class="fas fa-circle-info"></i>
+                    <p>Tu cuenta contiene datos personales que nos proporcionaste. Puedes descargarlos en formato JSON haciendo clic en el botón de abajo.</p>
+                </div>
+                <form asp-page="./DownloadPersonalData" method="post">
+                    <button type="submit" class="btn-download">
+                        <i class="fas fa-file-arrow-down"></i>
+                        Descargar datos (JSON)
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Eliminar cuenta -->
+        <div class="content-card">
+            <div class="card-header danger-head">
+                <div class="header-icon"><i class="fas fa-user-slash"></i></div>
+                <div>
+                    <h5>Eliminar cuenta</h5>
+                    <p>Esta acción es permanente e irreversible</p>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="danger-box">
+                    <i class="fas fa-triangle-exclamation"></i>
+                    <div class="danger-box-text">
+                        <h6>¿Estás seguro de que quieres eliminar tu cuenta?</h6>
+                        <p>Al eliminar tu cuenta se borrarán permanentemente todos tus datos. Esta acción no se puede deshacer.</p>
+                    </div>
+                </div>
+                <a asp-page="./DeletePersonalData" class="btn-danger">
+                    <i class="fas fa-trash"></i>
+                    Eliminar mi cuenta
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

@@ -1,0 +1,64 @@
+﻿@model DropDownsAnidadosMvc.Models.Producto
+@{ ViewData["Title"] = "Editar producto"; }
+
+<style>
+    :root{--g50:#f0f9f4;--g100:#d4eddf;--g200:#a8dbbe;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--text2:#374151;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
+    .page-header{margin-bottom:24px;} .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;} .page-header h1{font-size:1.6rem;color:var(--text);font-weight:700;letter-spacing:-.02em;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+    .content-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;max-width:520px;}
+    .card-head{padding:15px 22px;background:var(--g800);display:flex;align-items:center;gap:11px;} .card-head-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.95rem;flex-shrink:0;} .card-head h5{font-size:.95rem;color:#fff;margin:0;font-weight:600;} .card-head p{font-size:.72rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .card-body{padding:22px 24px;}
+    .field-group{margin-bottom:16px;} .field-label{display:block;font-size:.78rem;font-weight:500;color:var(--text2);margin-bottom:5px;} .field-input{width:100%;padding:9px 13px;border:1.5px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s,box-shadow .15s;} .field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(58,158,106,.1);background:#fff;} select.field-input{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:36px;}
+    .text-danger{font-size:.77rem;color:#dc2626;margin-top:3px;display:block;}
+    .btn-primary-custom{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .15s;} .btn-primary-custom:hover{background:var(--g600);}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.855rem;font-weight:500;text-decoration:none;transition:all .15s;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+    .btn-row{display:flex;align-items:center;gap:10px;margin-top:4px;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Productos</div>
+    <h1>Editar producto</h1>
+    <p class="sub">Modifica los datos del producto seleccionado</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="content-card">
+    <div class="card-head">
+        <div class="card-head-icon"><i class="fas fa-pen"></i></div>
+        <div><h5>Editar datos</h5><p>Los cambios se guardarán al confirmar</p></div>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:12px;"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <div class="field-group">
+                <label asp-for="Nombre" class="field-label"></label>
+                <input asp-for="Nombre" class="field-input" />
+                <span asp-validation-for="Nombre" class="text-danger"></span>
+            </div>
+
+            <div class="field-group">
+                <label asp-for="Precio" class="field-label"></label>
+                <input asp-for="Precio" class="field-input"  type="text"/>
+                <span asp-validation-for="Precio" class="text-danger"></span>
+            </div>
+
+            <div class="field-group">
+                <label asp-for="CategoriaId" class="field-label"></label>
+                <select asp-for="CategoriaId" class="field-input" asp-items="ViewBag.CategoriaId"></select>
+                <span asp-validation-for="CategoriaId" class="text-danger"></span>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn-primary-custom">
+                    <i class="fas fa-check"></i> Guardar cambios
+                </button>
+                <a asp-action="Index" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
