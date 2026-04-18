@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -74,6 +75,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // GET: Productos/Create
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             ViewData["CategoriaId"] = new SelectList(_context.Categoria, "Id", "Nombre");
@@ -85,6 +87,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // POST: Productos/Create
+        [Authorize(Roles = "Admin")]
         // IFormFile? imagenFile → el archivo que llega desde el <input type="file"> del formulario.
         // El nombre del parámetro debe coincidir exactamente con el name= del input HTML.
         [HttpPost]
@@ -125,6 +128,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // GET: Productos/Edit/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
@@ -146,6 +150,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // POST: Productos/Edit/5
+        [Authorize(Roles = "Admin")]
         // Incluimos ImagenUrl en el Bind para que el campo oculto del formulario
         // preserve la URL de la imagen anterior cuando no se sube una nueva.
         [HttpPost]
@@ -203,6 +208,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // GET: Productos/Delete/5
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null)
@@ -225,6 +231,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // POST: Productos/Delete/5
+        [Authorize(Roles = "Admin")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

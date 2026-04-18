@@ -111,6 +111,10 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
+                    // Todo usuario nuevo recibe el rol Mesero por defecto.
+                    // Solo el Admin puede cambiar roles desde el panel de usuarios.
+                    await _userManager.AddToRoleAsync(user, "Mesero");
+
                     _logger.LogInformation("User created a new account with password.");
 
                     var userId = await _userManager.GetUserIdAsync(user);

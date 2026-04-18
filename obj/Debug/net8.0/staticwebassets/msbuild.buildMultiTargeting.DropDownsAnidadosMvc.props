@@ -1,3 +1,0 @@
-﻿<Project>
-  <Import Project="..\build\DropDownsAnidadosMvc.props" />
-</Project>

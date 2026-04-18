@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using DropDownsAnidadosMvc.Datos;
 using DropDownsAnidadosMvc.Models;
+using Microsoft.AspNetCore.Authorization;
 
 namespace DropDownsAnidadosMvc.Controllers
 {
+    // Solo el Admin puede gestionar sucursales
+    [Authorize(Roles = "Admin")]
     public class SucursalesController : Controller
     {
         private readonly ApplicationDbContext _context;

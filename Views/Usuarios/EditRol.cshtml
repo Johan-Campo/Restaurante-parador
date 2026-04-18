@@ -1,0 +1,86 @@
+@model DropDownsAnidadosMvc.Models.UsuarioRolVM
+@{ ViewData["Title"] = "Cambiar rol"; }
+
+<style>
+    :root{--g50:#f5e8d0;--g100:#e8d0a0;--g400:#b5873f;--g600:#8a6230;--g800:#1a2820;--accent:#b5873f;--text:#1c1a17;--muted:#8b8680;--border:#e0d8cc;--surface:#faf7f2;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+    .panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;max-width:420px;}
+    .panel-head{padding:14px 20px;background:var(--g800);display:flex;align-items:center;gap:10px;}
+    .panel-head-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.9rem;}
+    .panel-head h5{font-size:.9rem;color:#fff;margin:0;font-weight:600;} .panel-head p{font-size:.7rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .panel-body{padding:20px;}
+    .user-info{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--surface);border-radius:8px;border:1px solid var(--border);margin-bottom:20px;}
+    .user-avatar{width:36px;height:36px;border-radius:50%;background:var(--g100);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:var(--g800);}
+    .user-email{font-size:.875rem;font-weight:500;color:var(--text);}
+    .rol-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+    .rol-option{display:flex;align-items:center;gap:12px;padding:14px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;}
+    .rol-option:hover{border-color:var(--g200);background:var(--g50);}
+    .rol-option.checked{border-color:var(--accent);background:var(--g50);}
+    .rol-option input[type=radio]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;}
+    .rol-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:.95rem;flex-shrink:0;}
+    .icon-admin{background:#fef3c7;color:#92400e;} .icon-mesero{background:#dbeafe;color:#1e40af;}
+    .rol-name{font-weight:600;font-size:.875rem;color:var(--text);}
+    .rol-desc{font-size:.75rem;color:var(--muted);margin-top:1px;}
+    .btn-submit{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .15s;} .btn-submit:hover{background:var(--g600);}
+    .btn-back{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.855rem;text-decoration:none;transition:all .15s;margin-top:8px;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Usuarios</div>
+    <h1>Cambiar rol</h1>
+    <p class="sub">Asigna los permisos de acceso para este usuario</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="panel">
+    <div class="panel-head">
+        <div class="panel-head-icon"><i class="fas fa-user-cog"></i></div>
+        <div><h5>Selecciona el rol</h5><p>@Model.Email</p></div>
+    </div>
+    <div class="panel-body">
+        <div class="user-info">
+            <div class="user-avatar">@Model.Email[0].ToString().ToUpper()</div>
+            <div class="user-email">@Model.Email</div>
+        </div>
+
+        <form asp-action="EditRol" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+            <div class="rol-options">
+                <label class="rol-option @(Model.Rol == "Admin" ? "checked" : "")">
+                    <input type="radio" name="nuevoRol" value="Admin"
+                           @(Model.Rol == "Admin" ? "checked" : "")
+                           onchange="marcar(this)" />
+                    <div class="rol-icon icon-admin"><i class="fas fa-shield-alt"></i></div>
+                    <div>
+                        <div class="rol-name">Admin</div>
+                        <div class="rol-desc">Acceso completo — CRUD de todo</div>
+                    </div>
+                </label>
+                <label class="rol-option @(Model.Rol == "Mesero" ? "checked" : "")">
+                    <input type="radio" name="nuevoRol" value="Mesero"
+                           @(Model.Rol == "Mesero" ? "checked" : "")
+                           onchange="marcar(this)" />
+                    <div class="rol-icon icon-mesero"><i class="fas fa-user"></i></div>
+                    <div>
+                        <div class="rol-name">Mesero</div>
+                        <div class="rol-desc">Solo crear y ver pedidos · ver productos</div>
+                    </div>
+                </label>
+            </div>
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check"></i> Guardar rol
+            </button>
+        </form>
+        <a asp-action="Index" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Volver
+        </a>
+    </div>
+</div>
+
+<script>
+    function marcar(radio) {
+        document.querySelectorAll('.rol-option').forEach(el => el.classList.remove('checked'));
+        radio.closest('.rol-option').classList.add('checked');
+    }
+</script>

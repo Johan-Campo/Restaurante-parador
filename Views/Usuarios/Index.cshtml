@@ -1,0 +1,76 @@
+@model IEnumerable<DropDownsAnidadosMvc.Models.UsuarioRolVM>
+@{ ViewData["Title"] = "Usuarios"; }
+
+<style>
+    :root{--g50:#f5e8d0;--g100:#e8d0a0;--g400:#b5873f;--g600:#8a6230;--g800:#1a2820;--accent:#b5873f;--text:#1c1a17;--muted:#8b8680;--border:#e0d8cc;--surface:#faf7f2;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+    .table-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+    .table-card-header{padding:16px 22px;background:var(--g800);display:flex;align-items:center;gap:11px;}
+    .t-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.95rem;}
+    .table-card-header h5{font-size:1rem;color:#fff;margin:0;font-weight:700;} .table-card-header p{font-size:.72rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .data-table{width:100%;border-collapse:collapse;}
+    .data-table thead th{padding:11px 20px;font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);text-align:left;}
+    .data-table tbody tr{border-bottom:1px solid var(--border);transition:background .12s;}
+    .data-table tbody tr:last-child{border-bottom:none;}
+    .data-table tbody tr:hover{background:var(--g50);}
+    .data-table tbody td{padding:13px 20px;font-size:.875rem;color:var(--text);vertical-align:middle;}
+    .rol-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .rol-admin{background:#fef3c7;color:#92400e;border:1px solid #fde68a;}
+    .rol-mesero{background:#dbeafe;color:#1e40af;border:1px solid #bfdbfe;}
+    .rol-none{background:#f3f4f6;color:#6b7280;border:1px solid #e5e7eb;}
+    .action-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:.78rem;font-weight:500;text-decoration:none;transition:all .15s;border:1px solid transparent;}
+    .action-btn.edit{background:var(--g50);border-color:var(--g100);color:var(--g600);} .action-btn.edit:hover{background:var(--g100);text-decoration:none;}
+    .user-cell{display:flex;align-items:center;gap:10px;}
+    .user-avatar{width:32px;height:32px;border-radius:50%;background:var(--g100);border:1.5px solid var(--g200);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:var(--g800);flex-shrink:0;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Administración</div>
+    <h1>Usuarios</h1>
+    <p class="sub">Gestiona los roles de acceso de cada usuario</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="table-card">
+    <div class="table-card-header">
+        <div class="t-icon"><i class="fas fa-users"></i></div>
+        <div>
+            <h5>Lista de usuarios</h5>
+            <p>@Model.Count() usuario(s) registrado(s)</p>
+        </div>
+    </div>
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th>Usuario</th>
+                <th>Rol actual</th>
+                <th style="width:120px;">Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var u in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">@u.Email[0].ToString().ToUpper()</div>
+                            <span>@u.Email</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="rol-badge @(u.Rol == "Admin" ? "rol-admin" : u.Rol == "Mesero" ? "rol-mesero" : "rol-none")">
+                            <i class="fas @(u.Rol == "Admin" ? "fa-shield-alt" : "fa-user")" style="font-size:.65rem;"></i>
+                            @u.Rol
+                        </span>
+                    </td>
+                    <td>
+                        <a asp-action="EditRol" asp-route-id="@u.Id" class="action-btn edit">
+                            <i class="fas fa-exchange-alt" style="font-size:.7rem;"></i> Cambiar rol
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
