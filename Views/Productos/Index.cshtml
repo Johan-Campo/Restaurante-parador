@@ -1,4 +1,4 @@
-﻿@model IEnumerable<DropDownsAnidadosMvc.Models.Producto>
+@model DropDownsAnidadosMvc.Models.ProductosPaginadosVM
 @{
     ViewData["Title"] = "Productos";
 }
@@ -7,157 +7,142 @@
     @@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&family=Fraunces:ital,wght@0,700;1,700&display=swap');
 
     :root {
-        --g50:    #f0f9f4;
-        --g100:   #d4eddf;
-        --g200:   #a8dbbe;
-        --g400:   #4db37a;
-        --g600:   #2d7d52;
-        --g800:   #1a4f33;
-        --accent: #3a9e6a;
-        --text:   #1e2d24;
-        --muted:  #6b7c71;
-        --border: #dde8e1;
-        --surface:#f5f7f5;
-        --font-display: 'Fraunces', serif;
-        --font-body:    'DM Sans', sans-serif;
-        --font-mono:    'DM Mono', monospace;
+        --g50:#f0f9f4;--g100:#d4eddf;--g200:#a8dbbe;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;
+        --accent:#3a9e6a;--text:#1e2d24;--muted:#6b7c71;--border:#dde8e1;--surface:#f5f7f5;
+        --font-display:'Fraunces',serif;--font-body:'DM Sans',sans-serif;--font-mono:'DM Mono',monospace;
     }
-
     body { font-family: var(--font-body); }
 
-    .page-header        { margin-bottom: 28px; }
-    .eyebrow {
-        font-family: var(--font-mono);
-        font-size: 0.68rem; letter-spacing: 0.16em;
-        text-transform: uppercase; color: var(--accent);
-        font-weight: 500; margin-bottom: 5px;
-    }
-    .page-header h1 {
-        font-family: var(--font-display);
-        font-size: 1.95rem; color: var(--text); font-weight: 700; margin-bottom: 5px;
-    }
-    .page-header .sub {
-        font-family: var(--font-body);
-        color: var(--muted); font-size: 0.875rem; margin-bottom: 14px;
-    }
-    .divider-green { width: 40px; height: 3px; background: var(--g400); border-radius: 2px; margin-bottom: 24px; }
+    .page-header { margin-bottom: 28px; }
+    .eyebrow { font-family:var(--font-mono);font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:500;margin-bottom:5px; }
+    .page-header h1 { font-family:var(--font-display);font-size:1.95rem;color:var(--text);font-weight:700;margin-bottom:5px; }
+    .page-header .sub { color:var(--muted);font-size:.875rem;margin-bottom:14px; }
+    .divider-green { width:40px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:24px; }
 
-    .toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; flex-wrap: wrap; gap: 10px; }
-    .count-badge {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: var(--g50); border: 1px solid var(--g100);
-        border-radius: 20px; padding: 5px 12px;
-        font-family: var(--font-body);
-        font-size: 0.78rem; color: var(--g600); font-weight: 500;
-    }
-    .btn-new {
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 9px 20px; background: var(--accent); color: #fff;
-        border-radius: 8px; font-family: var(--font-body);
-        font-size: 0.855rem; font-weight: 500;
-        text-decoration: none; transition: background 0.15s;
-    }
-    .btn-new:hover { background: var(--g600); color: #fff; text-decoration: none; }
+    /* Toolbar con buscador */
+    .toolbar { display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px; }
+    .toolbar-left { display:flex;align-items:center;gap:10px;flex-wrap:wrap; }
 
-    .table-card { background: #fff; border-radius: 14px; border: 1px solid var(--border); overflow: hidden; }
-    .table-card-header { padding: 16px 22px; background: var(--g800); display: flex; align-items: center; gap: 11px; }
-    .table-card-header .t-icon {
-        width: 34px; height: 34px; border-radius: 8px;
-        background: rgba(255,255,255,0.12);
-        display: flex; align-items: center; justify-content: center;
-        color: rgba(255,255,255,0.85); font-size: 0.95rem; flex-shrink: 0;
+    .search-form { display:flex;align-items:center;gap:0; }
+    .search-input {
+        padding:8px 13px;border:1.5px solid var(--border);border-right:none;
+        border-radius:8px 0 0 8px;font-size:.855rem;color:var(--text);
+        background:#fff;outline:none;width:220px;transition:border-color .15s;
     }
-    .table-card-header h5 {
-        font-family: var(--font-display);
-        font-size: 1rem; color: #fff; margin: 0; font-weight: 700;
+    .search-input:focus { border-color:var(--accent); }
+    .search-btn {
+        padding:8px 13px;background:var(--accent);color:#fff;border:none;
+        border-radius:0 8px 8px 0;cursor:pointer;transition:background .15s;font-size:.855rem;
     }
-    .table-card-header p {
-        font-family: var(--font-body);
-        font-size: 0.72rem; color: rgba(255,255,255,0.5); margin: 1px 0 0;
+    .search-btn:hover { background:var(--g600); }
+    .clear-btn {
+        display:inline-flex;align-items:center;gap:5px;padding:8px 12px;
+        background:#fff;border:1.5px solid var(--border);border-radius:8px;
+        font-size:.78rem;color:var(--muted);text-decoration:none;transition:all .15s;
     }
+    .clear-btn:hover { border-color:#fecaca;color:#dc2626;text-decoration:none; }
 
-    .data-table { width: 100%; border-collapse: collapse; }
-    .data-table thead th {
-        padding: 11px 20px;
-        font-family: var(--font-mono);
-        font-size: 0.7rem; font-weight: 500;
-        letter-spacing: 0.08em; text-transform: uppercase;
-        color: var(--muted); background: var(--surface);
-        border-bottom: 1px solid var(--border); text-align: left;
-    }
-    .data-table tbody tr { border-bottom: 1px solid var(--border); transition: background 0.12s; }
-    .data-table tbody tr:last-child { border-bottom: none; }
-    .data-table tbody tr:hover { background: var(--g50); }
-    .data-table tbody td {
-        padding: 13px 20px;
-        font-family: var(--font-body);
-        font-size: 0.875rem; color: var(--text); vertical-align: middle;
-    }
+    .count-badge { display:inline-flex;align-items:center;gap:6px;background:var(--g50);border:1px solid var(--g100);border-radius:20px;padding:5px 12px;font-size:.78rem;color:var(--g600);font-weight:500; }
+    .btn-new { display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:var(--accent);color:#fff;border-radius:8px;font-size:.855rem;font-weight:500;text-decoration:none;transition:background .15s; }
+    .btn-new:hover { background:var(--g600);color:#fff;text-decoration:none; }
 
-    .id-badge {
-        display: inline-flex; align-items: center; justify-content: center;
-        width: 28px; height: 28px; border-radius: 7px;
-        background: var(--g50); border: 1px solid var(--g100);
-        font-family: var(--font-mono);
-        font-size: 0.75rem; font-weight: 500; color: var(--g600);
-    }
-    .name-cell { display: flex; align-items: center; gap: 10px; }
-    .name-avatar {
-        width: 30px; height: 30px; border-radius: 8px; background: var(--g100);
-        display: flex; align-items: center; justify-content: center;
-        font-family: var(--font-body);
-        font-size: 0.8rem; color: var(--g800); font-weight: 600; flex-shrink: 0;
-    }
-    .price-cell {
-        font-family: var(--font-mono);
-        font-weight: 500; color: var(--g600);
-    }
-    .price-cell::before { content: '$'; font-size: 0.78rem; margin-right: 1px; color: var(--muted); }
-    .categoria-pill {
-        display: inline-flex; align-items: center; gap: 5px;
-        background: #f0f4ff; border: 1px solid #c7d4f7;
-        border-radius: 6px; padding: 4px 10px;
-        font-family: var(--font-body);
-        font-size: 0.78rem; color: #3b5ec4; font-weight: 500;
-    }
-    .actions-cell { display: flex; align-items: center; gap: 6px; }
-    .action-btn {
-        display: inline-flex; align-items: center; gap: 5px;
-        padding: 5px 11px; border-radius: 6px;
-        font-family: var(--font-body);
-        font-size: 0.78rem; font-weight: 500;
-        text-decoration: none; transition: all 0.15s; border: 1px solid transparent;
-    }
-    .action-btn.edit   { background: var(--g50);   border-color: var(--g100);  color: var(--g600); }
-    .action-btn.edit:hover   { background: var(--g100); color: var(--g800); text-decoration: none; }
-    .action-btn.detail { background: #f0f4ff; border-color: #c7d4f7; color: #3b5ec4; }
-    .action-btn.detail:hover { background: #dde6ff; color: #2945a8; text-decoration: none; }
-    .action-btn.delete { background: #fef2f2; border-color: #fecaca; color: #dc2626; }
-    .action-btn.delete:hover { background: #fee2e2; color: #b91c1c; text-decoration: none; }
+    /* Tabla */
+    .table-card { background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden; }
+    .table-card-header { padding:16px 22px;background:var(--g800);display:flex;align-items:center;gap:11px; }
+    .table-card-header .t-icon { width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.95rem;flex-shrink:0; }
+    .table-card-header h5 { font-family:var(--font-display);font-size:1rem;color:#fff;margin:0;font-weight:700; }
+    .table-card-header p  { font-size:.72rem;color:rgba(255,255,255,.5);margin:1px 0 0; }
 
-    .empty-state { padding: 56px 24px; text-align: center; }
-    .empty-icon {
-        width: 56px; height: 56px; border-radius: 14px;
-        background: var(--g50); border: 1px solid var(--g100);
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.4rem; color: var(--g400); margin: 0 auto 14px;
+    .data-table { width:100%;border-collapse:collapse; }
+    .data-table thead th { padding:11px 20px;font-family:var(--font-mono);font-size:.7rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);text-align:left; }
+    .data-table tbody tr { border-bottom:1px solid var(--border);transition:background .12s; }
+    .data-table tbody tr:last-child { border-bottom:none; }
+    .data-table tbody tr:hover { background:var(--g50); }
+    .data-table tbody td { padding:12px 20px;font-size:.875rem;color:var(--text);vertical-align:middle; }
+
+    .id-badge { display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:7px;background:var(--g50);border:1px solid var(--g100);font-family:var(--font-mono);font-size:.75rem;font-weight:500;color:var(--g600); }
+    .name-cell { display:flex;align-items:center;gap:11px; }
+    .product-thumb { width:42px;height:42px;border-radius:9px;object-fit:cover;border:1px solid var(--border);flex-shrink:0; }
+    .product-thumb-placeholder { width:42px;height:42px;border-radius:9px;background:var(--g100);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.9rem;color:var(--g800);font-weight:600;flex-shrink:0; }
+    .name-info { display:flex;flex-direction:column;gap:2px; }
+    .name-main { font-weight:500;color:var(--text); }
+    .name-desc { font-size:.75rem;color:var(--muted);max-width:220px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+    .price-cell { font-family:var(--font-mono);font-weight:500;color:var(--g600); }
+    .price-cell::before { content:'$';font-size:.78rem;margin-right:1px;color:var(--muted); }
+    .categoria-pill { display:inline-flex;align-items:center;gap:5px;background:#f0f4ff;border:1px solid #c7d4f7;border-radius:6px;padding:4px 10px;font-size:.78rem;color:#3b5ec4;font-weight:500; }
+    .actions-cell { display:flex;align-items:center;gap:6px; }
+    .action-btn { display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:6px;font-size:.78rem;font-weight:500;text-decoration:none;transition:all .15s;border:1px solid transparent; }
+    .action-btn.edit   { background:var(--g50);  border-color:var(--g100); color:var(--g600); }
+    .action-btn.edit:hover   { background:var(--g100);color:var(--g800);text-decoration:none; }
+    .action-btn.detail { background:#f0f4ff;border-color:#c7d4f7;color:#3b5ec4; }
+    .action-btn.detail:hover { background:#dde6ff;color:#2945a8;text-decoration:none; }
+    .action-btn.delete { background:#fef2f2;border-color:#fecaca;color:#dc2626; }
+    .action-btn.delete:hover { background:#fee2e2;color:#b91c1c;text-decoration:none; }
+    .no-img-badge { display:inline-flex;align-items:center;gap:4px;font-size:.7rem;color:#9ca3af;background:#f9fafb;border:1px dashed #d1d5db;border-radius:5px;padding:2px 7px; }
+
+    /* Paginación */
+    .pagination-bar {
+        display:flex;align-items:center;justify-content:space-between;
+        padding:14px 20px;border-top:1px solid var(--border);
+        background:var(--surface);flex-wrap:wrap;gap:10px;
     }
-    .empty-state h6 { font-family: var(--font-body); color: var(--text); font-weight: 600; margin-bottom: 5px; }
-    .empty-state p  { font-family: var(--font-body); font-size: 0.85rem; color: var(--muted); }
+    .pagination-info { font-size:.78rem;color:var(--muted); }
+    .pagination-info strong { color:var(--text); }
+    .pagination-btns { display:flex;align-items:center;gap:4px; }
+    .page-btn {
+        display:inline-flex;align-items:center;justify-content:center;
+        min-width:34px;height:34px;padding:0 10px;
+        border-radius:8px;font-size:.82rem;font-weight:500;
+        text-decoration:none;border:1px solid var(--border);
+        background:#fff;color:var(--text);transition:all .15s;
+    }
+    .page-btn:hover { background:var(--g50);border-color:var(--g200);color:var(--g600);text-decoration:none; }
+    .page-btn.active { background:var(--accent);border-color:var(--accent);color:#fff;pointer-events:none; }
+    .page-btn.disabled { opacity:.4;pointer-events:none; }
+
+    .empty-state { padding:56px 24px;text-align:center; }
+    .empty-icon { width:56px;height:56px;border-radius:14px;background:var(--g50);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center;font-size:1.4rem;color:var(--g400);margin:0 auto 14px; }
+    .empty-state h6 { color:var(--text);font-weight:600;margin-bottom:5px; }
+    .empty-state p  { font-size:.85rem;color:var(--muted); }
+
+    .search-highlight { background:#fef9c3;border-radius:3px;padding:0 2px; }
 </style>
 
 <div class="page-header">
     <div class="eyebrow">Gestión</div>
     <h1>Productos</h1>
-    <p class="sub">Administra el catálogo completo de productos</p>
+    <p class="sub">Administra el catálogo completo de productos del restaurante</p>
     <div class="divider-green"></div>
 </div>
 
 <div class="toolbar">
-    <div class="count-badge">
-        <i class="fas fa-box-open" style="font-size:0.75rem;"></i>
-        @Model.Count() producto(s) registrado(s)
+    <div class="toolbar-left">
+        @*
+            El formulario envía el texto a /Productos?buscar=xxx
+            method="get" pone los datos en la URL (no en el body),
+            lo que permite compartir/guardar la búsqueda.
+        *@
+        <form asp-action="Index" method="get" class="search-form">
+            <input type="text" name="buscar" value="@Model.Buscar"
+                   class="search-input" placeholder="Buscar por nombre o categoría..." />
+            <button type="submit" class="search-btn">
+                <i class="fas fa-search"></i>
+            </button>
+        </form>
+
+        @if (!string.IsNullOrWhiteSpace(Model.Buscar))
+        {
+            <a asp-action="Index" class="clear-btn">
+                <i class="fas fa-times"></i> Limpiar
+            </a>
+        }
+
+        <div class="count-badge">
+            <i class="fas fa-box-open" style="font-size:.75rem;"></i>
+            @Model.TotalProductos resultado(s)
+        </div>
     </div>
+
     <a asp-action="Create" class="btn-new">
         <i class="fas fa-plus"></i> Nuevo producto
     </a>
@@ -168,60 +153,157 @@
         <div class="t-icon"><i class="fas fa-box-open"></i></div>
         <div>
             <h5>Lista de productos</h5>
-            <p>Todos los productos del catálogo</p>
+            <p>
+                @if (!string.IsNullOrWhiteSpace(Model.Buscar))
+                {
+                    <span>Resultados para "@Model.Buscar" · Página @Model.PaginaActual de @Model.TotalPaginas</span>
+                }
+                else
+                {
+                    <span>Página @Model.PaginaActual de @Model.TotalPaginas · @Model.TotalProductos producto(s)</span>
+                }
+            </p>
         </div>
     </div>
 
-    @if (Model.Any())
+    @if (Model.Productos.Any())
     {
         <table class="data-table">
             <thead>
                 <tr>
-                    <th style="width:60px;">ID</th>
-                    <th>Nombre</th>
+                    <th style="width:55px;">#</th>
+                    <th>Producto</th>
                     <th>Precio</th>
                     <th>Categoría</th>
-                    <th style="width:200px;">Acciones</th>
+                    <th>Imagen</th>
+                    <th style="width:230px;">Acciones</th>
                 </tr>
             </thead>
             <tbody>
-                @for (int i = 0; i < Model.Count(); i++)
+                @{
+                    // Número de fila real considerando la página actual
+                    // Ej: página 2, tamaño 5 → empieza en 6
+                    int filaBase = (Model.PaginaActual - 1) * Model.TamanioPagina;
+                }
+                @for (int i = 0; i < Model.Productos.Count; i++)
                 {
-                    var item = Model.ElementAt(i);
-
+                    var item = Model.Productos[i];
                     <tr>
-                       <td><span class="id-badge">@(i + 1)</span></td>
+                        <td><span class="id-badge">@(filaBase + i + 1)</span></td>
                         <td>
                             <div class="name-cell">
-                                <div class="name-avatar">@(!string.IsNullOrEmpty(item.Nombre) ? item.Nombre[0].ToString().ToUpper() : "?")</div>
-                                <span style="font-weight:500;">@item.Nombre</span>
+                                @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                {
+                                    <img src="@item.ImagenUrl" alt="@item.Nombre" class="product-thumb" />
+                                }
+                                else
+                                {
+                                    <div class="product-thumb-placeholder">
+                                        @(!string.IsNullOrEmpty(item.Nombre) ? item.Nombre[0].ToString().ToUpper() : "?")
+                                    </div>
+                                }
+                                <div class="name-info">
+                                    <span class="name-main">@item.Nombre</span>
+                                    @if (!string.IsNullOrEmpty(item.Descripcion))
+                                    {
+                                        <span class="name-desc">@item.Descripcion</span>
+                                    }
+                                </div>
                             </div>
                         </td>
                         <td><span class="price-cell">@item.Precio</span></td>
                         <td>
                             <span class="categoria-pill">
-                                <i class="fas fa-tag" style="font-size:0.65rem;"></i>
-                                @Html.DisplayFor(m => item.Categoria.Nombre)
+                                <i class="fas fa-tag" style="font-size:.65rem;"></i>
+                                @item.Categoria?.Nombre
                             </span>
                         </td>
                         <td>
+                            @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                            {
+                                <span style="font-size:.75rem;color:var(--g600);"><i class="fas fa-check-circle" style="margin-right:4px;"></i>Con imagen</span>
+                            }
+                            else
+                            {
+                                <span class="no-img-badge"><i class="fas fa-image"></i> Sin imagen</span>
+                            }
+                        </td>
+                        <td>
                             <div class="actions-cell">
-                                <a asp-action="Edit"    asp-route-id="@item.Id" class="action-btn edit">   <i class="fas fa-pen"   style="font-size:0.7rem;"></i> Editar</a>
-                                <a asp-action="Details" asp-route-id="@item.Id" class="action-btn detail"><i class="fas fa-eye"   style="font-size:0.7rem;"></i> Detalle</a>
-                                <a asp-action="Delete"  asp-route-id="@item.Id" class="action-btn delete"><i class="fas fa-trash" style="font-size:0.7rem;"></i> Borrar</a>
+                                <a asp-action="Edit"    asp-route-id="@item.Id" class="action-btn edit">  <i class="fas fa-pen"   style="font-size:.7rem;"></i> Editar</a>
+                                <a asp-action="Details" asp-route-id="@item.Id" class="action-btn detail"><i class="fas fa-eye"   style="font-size:.7rem;"></i> Detalle</a>
+                                <a asp-action="Delete"  asp-route-id="@item.Id" class="action-btn delete"><i class="fas fa-trash" style="font-size:.7rem;"></i> Borrar</a>
                             </div>
                         </td>
                     </tr>
                 }
             </tbody>
         </table>
+
+        @* Barra de paginación — solo se muestra si hay más de una página *@
+        @if (Model.TotalPaginas > 1)
+        {
+            <div class="pagination-bar">
+                <span class="pagination-info">
+                    Mostrando <strong>@(((Model.PaginaActual - 1) * Model.TamanioPagina) + 1)–@(Math.Min(Model.PaginaActual * Model.TamanioPagina, Model.TotalProductos))</strong>
+                    de <strong>@Model.TotalProductos</strong> productos
+                </span>
+
+                <div class="pagination-btns">
+                    @* Botón "Anterior": mantiene el texto de búsqueda activo *@
+                    <a asp-action="Index"
+                       asp-route-pagina="@(Model.PaginaActual - 1)"
+                       asp-route-buscar="@Model.Buscar"
+                       class="page-btn @(!Model.TienePaginaAnterior ? "disabled" : "")">
+                        <i class="fas fa-chevron-left" style="font-size:.7rem;"></i>
+                    </a>
+
+                    @* Botones numerados para cada página *@
+                    @for (int p = 1; p <= Model.TotalPaginas; p++)
+                    {
+                        <a asp-action="Index"
+                           asp-route-pagina="@p"
+                           asp-route-buscar="@Model.Buscar"
+                           class="page-btn @(p == Model.PaginaActual ? "active" : "")">
+                            @p
+                        </a>
+                    }
+
+                    @* Botón "Siguiente" *@
+                    <a asp-action="Index"
+                       asp-route-pagina="@(Model.PaginaActual + 1)"
+                       asp-route-buscar="@Model.Buscar"
+                       class="page-btn @(!Model.TienePaginaSiguiente ? "disabled" : "")">
+                        <i class="fas fa-chevron-right" style="font-size:.7rem;"></i>
+                    </a>
+                </div>
+            </div>
+        }
     }
     else
     {
         <div class="empty-state">
-            <div class="empty-icon"><i class="fas fa-box-open"></i></div>
-            <h6>Sin productos registrados</h6>
-            <p>Agrega tu primer producto para comenzar</p>
+            <div class="empty-icon"><i class="fas fa-search"></i></div>
+            <h6>
+                @if (!string.IsNullOrWhiteSpace(Model.Buscar))
+                {
+                    <span>Sin resultados para "@Model.Buscar"</span>
+                }
+                else
+                {
+                    <span>Sin productos registrados</span>
+                }
+            </h6>
+            <p>
+                @if (!string.IsNullOrWhiteSpace(Model.Buscar))
+                {
+                    <a asp-action="Index" style="color:var(--accent);">Ver todos los productos</a>
+                }
+                else
+                {
+                    <span>Agrega tu primer producto para comenzar</span>
+                }
+            </p>
         </div>
     }
 </div>

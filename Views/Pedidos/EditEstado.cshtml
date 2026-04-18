@@ -1,0 +1,93 @@
+@model DropDownsAnidadosMvc.Models.Pedido
+@{
+    ViewData["Title"] = "Cambiar estado";
+}
+
+<style>
+    :root{--g50:#f0f9f4;--g100:#d4eddf;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--text2:#374151;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+
+    .panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;max-width:460px;}
+    .panel-head{padding:14px 20px;background:var(--g800);display:flex;align-items:center;gap:10px;}
+    .panel-head-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.9rem;}
+    .panel-head h5{font-size:.9rem;color:#fff;margin:0;font-weight:600;} .panel-head p{font-size:.7rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .panel-body{padding:20px;}
+
+    /* Radio buttons de estado con estilo de cards */
+    .estado-options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+    .estado-option{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;}
+    .estado-option:hover{border-color:var(--g200);background:var(--g50);}
+    .estado-option input[type=radio]{accent-color:var(--accent);width:16px;height:16px;flex-shrink:0;}
+    .estado-option.checked{border-color:var(--accent);background:var(--g50);}
+    .estado-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .dot-0{background:#facc15;} .dot-1{background:#3b82f6;} .dot-2{background:#22c55e;} .dot-3{background:#9ca3af;}
+    .estado-name{font-weight:600;font-size:.875rem;color:var(--text);}
+    .estado-desc{font-size:.75rem;color:var(--muted);}
+
+    .btn-submit{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.875rem;font-weight:600;cursor:pointer;transition:background .15s;} .btn-submit:hover{background:var(--g600);}
+    .btn-back{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.855rem;text-decoration:none;transition:all .15s;margin-top:8px;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Pedidos</div>
+    <h1>Cambiar estado</h1>
+    <p class="sub">Pedido #@Model.Id · @(!string.IsNullOrEmpty(Model.NombreCliente) ? Model.NombreCliente : "Sin nombre")</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="panel">
+    <div class="panel-head">
+        <div class="panel-head-icon"><i class="fas fa-exchange-alt"></i></div>
+        <div><h5>Selecciona el nuevo estado</h5><p>Estado actual: @Model.Estado</p></div>
+    </div>
+    <div class="panel-body">
+        @*
+            Enviamos solo el nuevo estado. El Id viene por la ruta (/EditEstado/5).
+            Enum.GetValues devuelve todos los valores del enum EstadoPedido.
+        *@
+        <form asp-action="EditEstado" asp-route-id="@Model.Id" method="post">
+            @Html.AntiForgeryToken()
+
+            <div class="estado-options">
+                @{
+                    var descripciones = new Dictionary<EstadoPedido, string>
+                    {
+                        [EstadoPedido.Pendiente]     = "Recibido, esperando iniciar preparación",
+                        [EstadoPedido.EnPreparacion] = "Cocina trabajando en el pedido",
+                        [EstadoPedido.Listo]         = "Listo para ser llevado a la mesa",
+                        [EstadoPedido.Entregado]     = "Entregado al cliente, pedido cerrado"
+                    };
+                }
+                @foreach (EstadoPedido estado in Enum.GetValues(typeof(EstadoPedido)))
+                {
+                    var esActual = estado == Model.Estado;
+                    <label class="estado-option @(esActual ? "checked" : "")">
+                        <input type="radio" name="estado" value="@((int)estado)"
+                               @(esActual ? "checked" : "")
+                               onchange="marcarSeleccionado(this)" />
+                        <div class="estado-dot dot-@((int)estado)"></div>
+                        <div>
+                            <div class="estado-name">@estado.ToString()</div>
+                            <div class="estado-desc">@descripciones[estado]</div>
+                        </div>
+                    </label>
+                }
+            </div>
+
+            <button type="submit" class="btn-submit">
+                <i class="fas fa-check"></i> Guardar estado
+            </button>
+        </form>
+        <a asp-action="Details" asp-route-id="@Model.Id" class="btn-back">
+            <i class="fas fa-arrow-left"></i> Cancelar
+        </a>
+    </div>
+</div>
+
+<script>
+    function marcarSeleccionado(radio) {
+        document.querySelectorAll('.estado-option').forEach(el => el.classList.remove('checked'));
+        radio.closest('.estado-option').classList.add('checked');
+    }
+</script>

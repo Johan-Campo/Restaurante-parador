@@ -291,6 +291,10 @@
            class="nav-link-custom @(controller == "Productos" ? "active" : "")">
             <i class="fas fa-box-open"></i><span>Productos</span>
         </a>
+        <a asp-controller="Pedidos" asp-action="Index"
+           class="nav-link-custom @(controller == "Pedidos" ? "active" : "")">
+            <i class="fas fa-receipt"></i><span>Pedidos</span>
+        </a>
     </div>
 
     <div class="nav-section-label">Cuenta</div>

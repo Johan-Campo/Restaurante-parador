@@ -1,0 +1,170 @@
+@model DropDownsAnidadosMvc.Models.Pedido
+@{
+    ViewData["Title"] = $"Pedido #{Model.Id}";
+}
+
+<style>
+    :root{--g50:#f0f9f4;--g100:#d4eddf;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--text2:#374151;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+
+    .detail-layout{display:grid;grid-template-columns:1fr 260px;gap:20px;max-width:900px;align-items:start;}
+    @@media(max-width:720px){.detail-layout{grid-template-columns:1fr;}}
+
+    .panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+    .panel-head{padding:14px 20px;background:var(--g800);display:flex;align-items:center;gap:10px;}
+    .panel-head-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.9rem;flex-shrink:0;}
+    .panel-head h5{font-size:.9rem;color:#fff;margin:0;font-weight:600;} .panel-head p{font-size:.7rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .panel-body{padding:18px 20px;}
+
+    .info-grid{display:grid;grid-template-columns:120px 1fr;gap:0;margin-bottom:0;}
+    .info-label{padding:10px 0;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);border-bottom:1px solid var(--border);}
+    .info-value{padding:10px 0;font-size:.875rem;color:var(--text);border-bottom:1px solid var(--border);}
+    .info-grid > *:nth-last-child(-n+2){border-bottom:none;}
+
+    .estado-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600;}
+    .estado-0{background:#fef9c3;color:#854d0e;border:1px solid #fef08a;}
+    .estado-1{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;}
+    .estado-2{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+    .estado-3{background:#f3f4f6;color:#374151;border:1px solid #d1d5db;}
+
+    /* Tabla de ítems */
+    .items-table{width:100%;border-collapse:collapse;}
+    .items-table th{padding:9px 12px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);background:var(--surface);border-bottom:1px solid var(--border);text-align:left;}
+    .items-table td{padding:11px 12px;font-size:.875rem;color:var(--text);border-bottom:1px solid var(--border);vertical-align:middle;}
+    .items-table tr:last-child td{border-bottom:none;}
+    .items-table tfoot td{font-weight:700;font-size:.9rem;background:var(--surface);border-top:2px solid var(--border);}
+    .prod-mini{display:flex;align-items:center;gap:9px;}
+    .prod-mini-img{width:34px;height:34px;border-radius:7px;object-fit:cover;border:1px solid var(--border);flex-shrink:0;}
+    .prod-mini-placeholder{width:34px;height:34px;border-radius:7px;background:var(--g100);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:var(--g800);flex-shrink:0;}
+    .cat-tag{font-size:.7rem;color:var(--muted);}
+    .price-mono{font-family:monospace;color:var(--g600);font-weight:500;}
+    .total-row .price-mono{font-size:1rem;color:var(--g800);}
+
+    /* Panel lateral */
+    .btn-estado{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;background:var(--accent);color:#fff;border-radius:8px;font-size:.855rem;font-weight:600;text-decoration:none;transition:background .15s;} .btn-estado:hover{background:var(--g600);color:#fff;text-decoration:none;}
+    .btn-back{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.855rem;text-decoration:none;transition:all .15s;margin-top:8px;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+    .btn-delete{display:inline-flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:8px;background:#fef2f2;color:#dc2626;border:1px solid #fecaca;border-radius:8px;font-size:.855rem;text-decoration:none;transition:all .15s;margin-top:8px;} .btn-delete:hover{background:#fee2e2;text-decoration:none;}
+
+    .obs-box{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:.85rem;color:var(--text2);line-height:1.5;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Pedidos</div>
+    <h1>Pedido #@Model.Id</h1>
+    <p class="sub">@Model.FechaCreacion.ToString("dddd, dd 'de' MMMM yyyy · HH:mm", new System.Globalization.CultureInfo("es-CO"))</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="detail-layout">
+
+    <!-- Ítems del pedido -->
+    <div>
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon"><i class="fas fa-utensils"></i></div>
+                <div><h5>Productos del pedido</h5><p>@Model.Items.Count ítem(s) · Total $@Model.Total.ToString("0.00")</p></div>
+            </div>
+            <table class="items-table">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th style="width:70px;text-align:center;">Cant.</th>
+                        <th style="width:100px;text-align:right;">P. Unit.</th>
+                        <th style="width:100px;text-align:right;">Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Items)
+                    {
+                        <tr>
+                            <td>
+                                <div class="prod-mini">
+                                    @if (!string.IsNullOrEmpty(item.Producto?.ImagenUrl))
+                                    {
+                                        <img src="@item.Producto.ImagenUrl" alt="@item.Producto.Nombre" class="prod-mini-img" />
+                                    }
+                                    else
+                                    {
+                                        <div class="prod-mini-placeholder">@(item.Producto?.Nombre[0] ?? '?')</div>
+                                    }
+                                    <div>
+                                        <div style="font-weight:500;">@item.Producto?.Nombre</div>
+                                        <div class="cat-tag">@item.Producto?.Categoria?.Nombre</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td style="text-align:center;">@item.Cantidad</td>
+                            <td style="text-align:right;" class="price-mono">$@item.PrecioUnitario.ToString("0.00")</td>
+                            <td style="text-align:right;" class="price-mono">$@item.Subtotal.ToString("0.00")</td>
+                        </tr>
+                    }
+                </tbody>
+                <tfoot>
+                    <tr class="total-row">
+                        <td colspan="3" style="text-align:right;color:var(--muted);font-size:.8rem;">TOTAL</td>
+                        <td style="text-align:right;" class="price-mono">$@Model.Total.ToString("0.00")</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+        @if (!string.IsNullOrEmpty(Model.Observaciones))
+        {
+            <div class="panel" style="margin-top:16px;">
+                <div class="panel-head">
+                    <div class="panel-head-icon"><i class="fas fa-comment-alt"></i></div>
+                    <div><h5>Observaciones</h5></div>
+                </div>
+                <div class="panel-body">
+                    <div class="obs-box">@Model.Observaciones</div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Panel lateral: info + acciones -->
+    <div>
+        <div class="panel" style="margin-bottom:16px;">
+            <div class="panel-head">
+                <div class="panel-head-icon"><i class="fas fa-info-circle"></i></div>
+                <div><h5>Información</h5></div>
+            </div>
+            <div class="panel-body">
+                <div class="info-grid">
+                    <div class="info-label">Estado</div>
+                    <div class="info-value">
+                        <span class="estado-badge estado-@((int)Model.Estado)">
+                            @Model.Estado.ToString()
+                        </span>
+                    </div>
+                    <div class="info-label">Cliente</div>
+                    <div class="info-value">@(string.IsNullOrEmpty(Model.NombreCliente) ? "—" : Model.NombreCliente)</div>
+                    <div class="info-label">Mesa</div>
+                    <div class="info-value">@(string.IsNullOrEmpty(Model.NumeroMesa) ? "—" : Model.NumeroMesa)</div>
+                    <div class="info-label">Fecha</div>
+                    <div class="info-value">@Model.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon"><i class="fas fa-cog"></i></div>
+                <div><h5>Acciones</h5></div>
+            </div>
+            <div class="panel-body">
+                <a asp-action="EditEstado" asp-route-id="@Model.Id" class="btn-estado">
+                    <i class="fas fa-exchange-alt"></i> Cambiar estado
+                </a>
+                <a asp-action="Index" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver a pedidos
+                </a>
+                <a asp-action="Delete" asp-route-id="@Model.Id" class="btn-delete">
+                    <i class="fas fa-trash"></i> Eliminar pedido
+                </a>
+            </div>
+        </div>
+    </div>
+
+</div>

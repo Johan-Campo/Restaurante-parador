@@ -1,58 +1,111 @@
-﻿@model DropDownsAnidadosMvc.Models.Producto
+@model DropDownsAnidadosMvc.Models.Producto
 @{ ViewData["Title"] = "Detalle producto"; }
 
 <style>
     :root{--g50:#f0f9f4;--g100:#d4eddf;--g200:#a8dbbe;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--text2:#374151;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
     .page-header{margin-bottom:24px;} .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;} .page-header h1{font-size:1.6rem;color:var(--text);font-weight:700;letter-spacing:-.02em;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
-    .content-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;max-width:520px;}
+
+    .detail-layout{display:grid;grid-template-columns:240px 1fr;gap:24px;max-width:680px;align-items:start;}
+    @@media(max-width:600px){.detail-layout{grid-template-columns:1fr;}}
+
+    /* Imagen grande */
+    .detail-img-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+    .detail-img-wrap{padding:0;}
+    .detail-img-wrap img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}
+    .detail-img-placeholder{width:100%;aspect-ratio:1/1;background:var(--g50);display:flex;align-items:center;justify-content:center;}
+    .detail-img-placeholder span{font-size:4rem;font-weight:700;color:var(--g200);}
+    .detail-img-label{padding:10px 14px;background:var(--surface);border-top:1px solid var(--border);font-size:.72rem;color:var(--muted);text-align:center;}
+
+    /* Panel de info */
+    .content-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
     .card-head{padding:15px 22px;background:var(--g800);display:flex;align-items:center;gap:11px;} .card-head-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.95rem;flex-shrink:0;} .card-head h5{font-size:.95rem;color:#fff;margin:0;font-weight:600;} .card-head p{font-size:.72rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
     .card-body{padding:22px 24px;}
-    .detail-grid{display:grid;grid-template-columns:140px 1fr;gap:0;}
-    .detail-label{padding:11px 16px 11px 0;font-size:.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
-    .detail-value{padding:11px 0;font-size:.9rem;color:var(--text);border-bottom:1px solid var(--border);}
+    .detail-grid{display:grid;grid-template-columns:130px 1fr;gap:0;}
+    .detail-label{padding:12px 16px 12px 0;font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--border);}
+    .detail-value{padding:12px 0;font-size:.9rem;color:var(--text);border-bottom:1px solid var(--border);}
     .detail-grid > *:nth-last-child(-n+2){border-bottom:none;}
-    .price-val{font-weight:700;color:var(--g600);font-size:1rem;}
+    .price-val{font-weight:700;color:var(--g600);font-size:1.05rem;}
     .price-val::before{content:'$';font-size:.78rem;margin-right:1px;color:var(--muted);font-weight:400;}
     .detail-pill{display:inline-flex;align-items:center;gap:5px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:6px;padding:4px 10px;font-size:.78rem;color:#2563eb;font-weight:500;}
-    .btn-edit{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:.855rem;font-weight:600;text-decoration:none;transition:background .15s;} .btn-edit:hover{background:var(--g600);color:#fff;text-decoration:none;}
-    .btn-back{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-family:'Inter',sans-serif;font-size:.855rem;font-weight:500;text-decoration:none;transition:all .15s;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+    .desc-text{color:var(--text2);font-size:.875rem;line-height:1.55;}
+    .no-desc{font-size:.82rem;color:var(--muted);font-style:italic;}
+
+    .btn-edit{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.855rem;font-weight:600;text-decoration:none;transition:background .15s;} .btn-edit:hover{background:var(--g600);color:#fff;text-decoration:none;}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.855rem;font-weight:500;text-decoration:none;transition:all .15s;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
     .btn-row{display:flex;align-items:center;gap:10px;margin-top:20px;}
 </style>
 
 <div class="page-header">
     <div class="eyebrow">Productos</div>
-    <h1>Detalle de producto</h1>
-    <p class="sub">Información completa del registro</p>
+    <h1>@Model.Nombre</h1>
+    <p class="sub">Ficha completa del producto · ID #@Model.Id</p>
     <div class="divider-green"></div>
 </div>
 
-<div class="content-card">
-    <div class="card-head">
-        <div class="card-head-icon"><i class="fas fa-box-open"></i></div>
-        <div><h5>@Model.Nombre</h5><p>ID #@Model.Id</p></div>
-    </div>
-    <div class="card-body">
-        <div class="detail-grid">
-            <div class="detail-label">Nombre</div>
-            <div class="detail-value">@Html.DisplayFor(m => m.Nombre)</div>
-            <div class="detail-label">Precio</div>
-            <div class="detail-value"><span class="price-val">@Html.DisplayFor(m => m.Precio)</span></div>
-            <div class="detail-label">Categoría</div>
-            <div class="detail-value">
-                <span class="detail-pill">
-                    <i class="fas fa-tag" style="font-size:.65rem;"></i>
-                    @Html.DisplayFor(m => m.Categoria.Nombre)
-                </span>
-            </div>
-        </div>
+<div class="detail-layout">
 
-        <div class="btn-row">
-            <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn-edit">
-                <i class="fas fa-pen"></i> Editar
-            </a>
-            <a asp-action="Index" class="btn-back">
-                <i class="fas fa-arrow-left"></i> Volver
-            </a>
+    <!-- Imagen del producto -->
+    <div class="detail-img-card">
+        <div class="detail-img-wrap">
+            @if (!string.IsNullOrEmpty(Model.ImagenUrl))
+            {
+                <img src="@Model.ImagenUrl" alt="@Model.Nombre" />
+            }
+            else
+            {
+                <div class="detail-img-placeholder">
+                    <span>@(!string.IsNullOrEmpty(Model.Nombre) ? Model.Nombre[0].ToString().ToUpper() : "?")</span>
+                </div>
+            }
+        </div>
+        <div class="detail-img-label">
+            @(string.IsNullOrEmpty(Model.ImagenUrl) ? "Sin imagen" : "Imagen del producto")
+        </div>
+    </div>
+
+    <!-- Información -->
+    <div class="content-card">
+        <div class="card-head">
+            <div class="card-head-icon"><i class="fas fa-box-open"></i></div>
+            <div><h5>@Model.Nombre</h5><p>ID #@Model.Id</p></div>
+        </div>
+        <div class="card-body">
+            <div class="detail-grid">
+                <div class="detail-label">Nombre</div>
+                <div class="detail-value">@Model.Nombre</div>
+
+                <div class="detail-label">Precio</div>
+                <div class="detail-value"><span class="price-val">@Model.Precio</span></div>
+
+                <div class="detail-label">Categoría</div>
+                <div class="detail-value">
+                    <span class="detail-pill">
+                        <i class="fas fa-tag" style="font-size:.65rem;"></i>
+                        @Model.Categoria?.Nombre
+                    </span>
+                </div>
+
+                <div class="detail-label">Descripción</div>
+                <div class="detail-value">
+                    @if (!string.IsNullOrEmpty(Model.Descripcion))
+                    {
+                        <span class="desc-text">@Model.Descripcion</span>
+                    }
+                    else
+                    {
+                        <span class="no-desc">Sin descripción registrada</span>
+                    }
+                </div>
+            </div>
+
+            <div class="btn-row">
+                <a asp-action="Edit" asp-route-id="@Model.Id" class="btn-edit">
+                    <i class="fas fa-pen"></i> Editar
+                </a>
+                <a asp-action="Index" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
         </div>
     </div>
 </div>

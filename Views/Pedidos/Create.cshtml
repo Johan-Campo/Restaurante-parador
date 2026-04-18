@@ -1,0 +1,213 @@
+@model DropDownsAnidadosMvc.Models.CrearPedidoVM
+@{
+    ViewData["Title"] = "Nuevo pedido";
+    // Agrupa los items por categoría para mostrarlos organizados
+    var grupos = Model.Items.GroupBy(i => i.NombreCategoria).OrderBy(g => g.Key);
+}
+
+<style>
+    :root{--g50:#f0f9f4;--g100:#d4eddf;--g200:#a8dbbe;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--text2:#374151;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+
+    .create-layout{display:grid;grid-template-columns:1fr 300px;gap:24px;align-items:start;}
+    @@media(max-width:800px){.create-layout{grid-template-columns:1fr;}}
+
+    /* Panel de productos */
+    .panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
+    .panel-head{padding:14px 20px;background:var(--g800);display:flex;align-items:center;gap:10px;}
+    .panel-head-icon{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.9rem;flex-shrink:0;}
+    .panel-head h5{font-size:.9rem;color:#fff;margin:0;font-weight:600;} .panel-head p{font-size:.7rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
+    .panel-body{padding:18px 20px;}
+
+    /* Grupo de categoría */
+    .cat-group{margin-bottom:20px;}
+    .cat-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+    .cat-label::after{content:'';flex:1;height:1px;background:var(--border);}
+
+    .productos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+
+    .prod-card{border:1.5px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color .15s,box-shadow .15s;cursor:pointer;}
+    .prod-card:hover{border-color:var(--g200);box-shadow:0 2px 8px rgba(0,0,0,.06);}
+    .prod-card.selected{border-color:var(--accent);box-shadow:0 0 0 3px rgba(58,158,106,.12);}
+    .prod-img{width:100%;height:90px;object-fit:cover;background:var(--g50);display:block;}
+    .prod-img-placeholder{width:100%;height:90px;background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:700;color:var(--g200);}
+    .prod-info{padding:8px 10px;}
+    .prod-name{font-size:.8rem;font-weight:600;color:var(--text);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .prod-price{font-size:.78rem;color:var(--g600);font-weight:500;}
+    .prod-price::before{content:'$';font-size:.68rem;margin-right:1px;color:var(--muted);}
+    .qty-row{display:flex;align-items:center;gap:6px;padding:6px 10px;border-top:1px solid var(--border);background:var(--surface);}
+    .qty-label{font-size:.72rem;color:var(--muted);flex:1;}
+    .qty-input{width:54px;padding:4px 6px;border:1.5px solid var(--border);border-radius:6px;font-size:.82rem;text-align:center;outline:none;transition:border-color .15s;}
+    .qty-input:focus{border-color:var(--accent);}
+
+    /* Panel resumen */
+    .summary-panel{position:sticky;top:20px;}
+    .field-group{margin-bottom:14px;} .field-label{display:block;font-size:.78rem;font-weight:500;color:var(--text2);margin-bottom:5px;} .field-input{width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.875rem;color:var(--text);background:var(--surface);outline:none;transition:border-color .15s;} .field-input:focus{border-color:var(--accent);background:#fff;} textarea.field-input{resize:vertical;min-height:70px;}
+    .text-danger{font-size:.77rem;color:#dc2626;margin-top:3px;display:block;}
+
+    .resumen-items{min-height:60px;margin-bottom:14px;}
+    .resumen-row{display:flex;justify-content:space-between;font-size:.8rem;padding:4px 0;border-bottom:1px solid var(--border);color:var(--text);}
+    .resumen-empty{font-size:.8rem;color:var(--muted);font-style:italic;padding:8px 0;}
+    .resumen-total{display:flex;justify-content:space-between;padding:10px 0 0;font-weight:700;font-size:.95rem;color:var(--text);}
+    .resumen-total span:last-child{color:var(--g600);}
+
+    .btn-submit{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:10px;background:var(--accent);color:#fff;border:none;border-radius:8px;font-size:.9rem;font-weight:600;cursor:pointer;transition:background .15s;margin-top:14px;} .btn-submit:hover{background:var(--g600);}
+    .btn-back{display:inline-flex;align-items:center;gap:6px;width:100%;justify-content:center;padding:8px;background:#fff;color:var(--muted);border:1px solid var(--border);border-radius:8px;font-size:.855rem;font-weight:500;text-decoration:none;transition:all .15s;margin-top:8px;} .btn-back:hover{border-color:var(--g200);color:var(--text);text-decoration:none;}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Pedidos</div>
+    <h1>Nuevo pedido</h1>
+    <p class="sub">Selecciona los productos y completa los datos del pedido</p>
+    <div class="divider-green"></div>
+</div>
+
+<form asp-action="Create" method="post" id="pedidoForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger" style="margin-bottom:12px;"></div>
+
+    <div class="create-layout">
+
+        <!-- Panel izquierdo: selección de productos -->
+        <div class="panel">
+            <div class="panel-head">
+                <div class="panel-head-icon"><i class="fas fa-utensils"></i></div>
+                <div><h5>Seleccionar productos</h5><p>Ingresa la cantidad deseada (0 = no incluir)</p></div>
+            </div>
+            <div class="panel-body">
+                @{int idx = 0;}
+                @foreach (var grupo in grupos)
+                {
+                    <div class="cat-group">
+                        <div class="cat-label">
+                            <i class="fas fa-tag" style="font-size:.65rem;"></i> @grupo.Key
+                        </div>
+                        <div class="productos-grid">
+                            @foreach (var item in grupo)
+                            {
+                                @* Model binding por índice: Items[0].ProductoId, Items[0].Cantidad, etc. *@
+                                <input type="hidden" name="Items[@idx].ProductoId"      value="@item.ProductoId" />
+                                <input type="hidden" name="Items[@idx].NombreProducto" value="@item.NombreProducto" />
+                                <input type="hidden" name="Items[@idx].NombreCategoria" value="@item.NombreCategoria" />
+                                <input type="hidden" name="Items[@idx].Precio"          value="@item.Precio" />
+
+                                <div class="prod-card" id="card-@item.ProductoId">
+                                    @if (!string.IsNullOrEmpty(item.ImagenUrl))
+                                    {
+                                        <img src="@item.ImagenUrl" alt="@item.NombreProducto" class="prod-img" />
+                                    }
+                                    else
+                                    {
+                                        <div class="prod-img-placeholder">@item.NombreProducto[0]</div>
+                                    }
+                                    <div class="prod-info">
+                                        <div class="prod-name" title="@item.NombreProducto">@item.NombreProducto</div>
+                                        <div class="prod-price">@item.Precio.ToString("0.00")</div>
+                                    </div>
+                                    <div class="qty-row">
+                                        <span class="qty-label">Cant.</span>
+                                        <input type="number"
+                                               name="Items[@idx].Cantidad"
+                                               value="0" min="0" max="99"
+                                               class="qty-input"
+                                               data-id="@item.ProductoId"
+                                               data-nombre="@item.NombreProducto"
+                                               data-precio="@item.Precio.ToString("0.00")"
+                                               onchange="actualizarResumen()" />
+                                    </div>
+                                </div>
+
+                                idx++;
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- Panel derecho: datos del pedido + resumen -->
+        <div class="summary-panel">
+            <div class="panel" style="margin-bottom:16px;">
+                <div class="panel-head">
+                    <div class="panel-head-icon"><i class="fas fa-user"></i></div>
+                    <div><h5>Datos del pedido</h5><p>Todos los campos son opcionales</p></div>
+                </div>
+                <div class="panel-body">
+                    <div class="field-group">
+                        <label class="field-label">Cliente</label>
+                        <input type="text" name="NombreCliente" value="@Model.NombreCliente"
+                               class="field-input" placeholder="Ej: Juan García" />
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Mesa</label>
+                        <input type="text" name="NumeroMesa" value="@Model.NumeroMesa"
+                               class="field-input" placeholder="Ej: 5" />
+                    </div>
+                    <div class="field-group">
+                        <label class="field-label">Observaciones</label>
+                        <textarea name="Observaciones" class="field-input"
+                                  placeholder="Ej: sin cebolla, alergia a nueces...">@Model.Observaciones</textarea>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="panel-head">
+                    <div class="panel-head-icon"><i class="fas fa-receipt"></i></div>
+                    <div><h5>Resumen</h5><p>Productos seleccionados</p></div>
+                </div>
+                <div class="panel-body">
+                    <div class="resumen-items" id="resumenItems">
+                        <div class="resumen-empty">Ningún producto seleccionado aún</div>
+                    </div>
+                    <div class="resumen-total">
+                        <span>Total</span>
+                        <span id="resumenTotal">$0.00</span>
+                    </div>
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-check"></i> Confirmar pedido
+                    </button>
+                    <a asp-action="Index" class="btn-back">
+                        <i class="fas fa-arrow-left"></i> Cancelar
+                    </a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<script>
+    // Actualiza el resumen en tiempo real cada vez que cambia una cantidad
+    function actualizarResumen() {
+        const inputs = document.querySelectorAll('.qty-input');
+        const container = document.getElementById('resumenItems');
+        let total = 0;
+        let html = '';
+
+        inputs.forEach(input => {
+            const qty = parseInt(input.value) || 0;
+            const precio = parseFloat(input.dataset.precio);
+            const nombre = input.dataset.nombre;
+            const card = document.getElementById('card-' + input.dataset.id);
+
+            // Resaltar tarjeta si tiene cantidad > 0
+            if (qty > 0) {
+                card.classList.add('selected');
+                const sub = qty * precio;
+                total += sub;
+                html += `<div class="resumen-row">
+                    <span>${qty}× ${nombre}</span>
+                    <span>$${sub.toFixed(2)}</span>
+                </div>`;
+            } else {
+                card.classList.remove('selected');
+            }
+        });
+
+        container.innerHTML = html || '<div class="resumen-empty">Ningún producto seleccionado aún</div>';
+        document.getElementById('resumenTotal').textContent = '$' + total.toFixed(2);
+    }
+</script>
+
+@section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

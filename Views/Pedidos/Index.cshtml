@@ -1,0 +1,128 @@
+@model IEnumerable<DropDownsAnidadosMvc.Models.Pedido>
+@{
+    ViewData["Title"] = "Pedidos";
+}
+
+<style>
+    :root{--g50:#f0f9f4;--g100:#d4eddf;--g400:#4db37a;--g600:#2d7d52;--g800:#1a4f33;--accent:#3a9e6a;--text:#111827;--muted:#6b7280;--border:#e5e7eb;--surface:#f9fafb;}
+    .eyebrow{font-size:.68rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin-bottom:4px;}
+    .page-header{margin-bottom:24px;} .page-header h1{font-size:1.7rem;color:var(--text);font-weight:700;margin-bottom:4px;} .page-header .sub{color:var(--muted);font-size:.875rem;margin-bottom:12px;} .divider-green{width:36px;height:3px;background:var(--g400);border-radius:2px;margin-bottom:22px;}
+    .toolbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+    .btn-new{display:inline-flex;align-items:center;gap:7px;padding:9px 20px;background:var(--accent);color:#fff;border-radius:8px;font-size:.855rem;font-weight:500;text-decoration:none;transition:background .15s;} .btn-new:hover{background:var(--g600);color:#fff;text-decoration:none;}
+
+    .pedidos-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;}
+
+    .pedido-card{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;transition:box-shadow .15s;}
+    .pedido-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.07);}
+    .card-top{padding:14px 18px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;border-bottom:1px solid var(--border);}
+    .card-id{font-size:.72rem;font-weight:600;color:var(--muted);margin-bottom:3px;}
+    .card-cliente{font-size:.92rem;font-weight:600;color:var(--text);}
+    .card-meta{font-size:.75rem;color:var(--muted);margin-top:2px;}
+
+    /* Badges de estado */
+    .estado-badge{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:.72rem;font-weight:600;white-space:nowrap;}
+    .estado-0{background:#fef9c3;color:#854d0e;border:1px solid #fef08a;}   /* Pendiente */
+    .estado-1{background:#dbeafe;color:#1d4ed8;border:1px solid #bfdbfe;}   /* En preparación */
+    .estado-2{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}   /* Listo */
+    .estado-3{background:#f3f4f6;color:#374151;border:1px solid #d1d5db;}   /* Entregado */
+
+    .card-body{padding:14px 18px;}
+    .items-preview{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+    .item-row{display:flex;justify-content:space-between;font-size:.8rem;color:var(--muted);}
+    .item-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:60%;}
+    .item-price{font-weight:500;color:var(--text);white-space:nowrap;}
+    .more-items{font-size:.75rem;color:var(--muted);font-style:italic;}
+
+    .card-footer{padding:12px 18px;background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+    .total-label{font-size:.75rem;color:var(--muted);}
+    .total-val{font-size:1rem;font-weight:700;color:var(--g600);}
+    .total-val::before{content:'$';font-size:.75rem;margin-right:1px;color:var(--muted);font-weight:400;}
+    .card-actions{display:flex;gap:6px;}
+    .btn-card{display:inline-flex;align-items:center;gap:4px;padding:5px 10px;border-radius:6px;font-size:.75rem;font-weight:500;text-decoration:none;border:1px solid transparent;transition:all .15s;}
+    .btn-card.detail{background:#f0f4ff;border-color:#c7d4f7;color:#3b5ec4;} .btn-card.detail:hover{background:#dde6ff;text-decoration:none;}
+    .btn-card.delete{background:#fef2f2;border-color:#fecaca;color:#dc2626;} .btn-card.delete:hover{background:#fee2e2;text-decoration:none;}
+
+    .empty-state{text-align:center;padding:60px 24px;background:#fff;border-radius:14px;border:1px solid var(--border);}
+    .empty-icon{width:60px;height:60px;border-radius:14px;background:var(--g50);border:1px solid var(--g100);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:var(--g400);margin:0 auto 16px;}
+    .empty-state h6{font-weight:600;color:var(--text);margin-bottom:6px;} .empty-state p{font-size:.875rem;color:var(--muted);}
+</style>
+
+<div class="page-header">
+    <div class="eyebrow">Operaciones</div>
+    <h1>Pedidos</h1>
+    <p class="sub">Gestiona los pedidos activos del restaurante</p>
+    <div class="divider-green"></div>
+</div>
+
+<div class="toolbar">
+    <span style="font-size:.85rem;color:var(--muted);">@Model.Count() pedido(s) registrado(s)</span>
+    <a asp-action="Create" class="btn-new"><i class="fas fa-plus"></i> Nuevo pedido</a>
+</div>
+
+@if (Model.Any())
+{
+    <div class="pedidos-grid">
+        @foreach (var p in Model)
+        {
+            <div class="pedido-card">
+                <div class="card-top">
+                    <div>
+                        <div class="card-id">Pedido #@p.Id</div>
+                        <div class="card-cliente">
+                            @(!string.IsNullOrEmpty(p.NombreCliente) ? p.NombreCliente : "Sin nombre")
+                            @if (!string.IsNullOrEmpty(p.NumeroMesa))
+                            {
+                                <span style="font-weight:400;color:var(--muted);"> · Mesa @p.NumeroMesa</span>
+                            }
+                        </div>
+                        <div class="card-meta">@p.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</div>
+                    </div>
+                    <span class="estado-badge estado-@((int)p.Estado)">
+                        @switch (p.Estado)
+                        {
+                            case EstadoPedido.Pendiente:     { <text><i class="fas fa-clock"></i> Pendiente</text>         break; }
+                            case EstadoPedido.EnPreparacion: { <text><i class="fas fa-fire"></i> En preparación</text>     break; }
+                            case EstadoPedido.Listo:         { <text><i class="fas fa-check"></i> Listo</text>             break; }
+                            case EstadoPedido.Entregado:     { <text><i class="fas fa-flag-checkered"></i> Entregado</text> break; }
+                        }
+                    </span>
+                </div>
+
+                <div class="card-body">
+                    <div class="items-preview">
+                        @foreach (var item in p.Items.Take(3))
+                        {
+                            <div class="item-row">
+                                <span class="item-name">@item.Cantidad× @item.Producto?.Nombre</span>
+                                <span class="item-price">$@item.Subtotal.ToString("0.00")</span>
+                            </div>
+                        }
+                        @if (p.Items.Count > 3)
+                        {
+                            <span class="more-items">+@(p.Items.Count - 3) producto(s) más...</span>
+                        }
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div>
+                        <div class="total-label">Total</div>
+                        <div class="total-val">@p.Total.ToString("0.00")</div>
+                    </div>
+                    <div class="card-actions">
+                        <a asp-action="Details" asp-route-id="@p.Id" class="btn-card detail"><i class="fas fa-eye"></i> Ver</a>
+                        <a asp-action="Delete"  asp-route-id="@p.Id" class="btn-card delete"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-icon"><i class="fas fa-receipt"></i></div>
+        <h6>Sin pedidos registrados</h6>
+        <p>Crea el primer pedido para comenzar</p>
+    </div>
+}
