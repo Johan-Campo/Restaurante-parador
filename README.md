@@ -151,11 +151,10 @@ Se crean los roles **Admin** y **Mesero**, y el usuario administrador por defect
 - **App Service:** plan gratuito/básico con runtime .NET 8
 - **CI/CD:** GitHub Actions con autenticación OIDC — deploy automático en cada push a `master`
 - **Base de datos:** Azure SQL (cadena de conexión en variables de entorno de Azure)
-- La carpeta `wwwroot/images/productos/` es efímera en Azure App Service — para producción real se recomienda migrar el almacenamiento a **Azure Blob Storage**
 
 ---
 
 ## Autor
 
 **Johan Campo** · Proyecto de portafolio personal  
-Desarrollado para aprender ASP.NET Core MVC de forma progresiva.
+
