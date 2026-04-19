@@ -28,6 +28,7 @@ try
         options.LoginPath = "/Identity/Account/Login";
     });
 
+    builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options =>
     {
         options.IdleTimeout = TimeSpan.FromHours(8);
