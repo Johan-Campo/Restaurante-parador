@@ -38,7 +38,8 @@ namespace DropDownsAnidadosMvc.Controllers
 
             var viewModel = new DropDownsVM
             {
-                Sucursales = sucursales
+                Sucursales = sucursales,
+                Producto   = new Producto()
             };
 
             return View(viewModel);
