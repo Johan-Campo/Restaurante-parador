@@ -49,8 +49,9 @@ try
     var app = builder.Build();
 
     // ── Migraciones y seed de roles/admin ─────────────────────────────────────
-    using (var scope = app.Services.CreateScope())
+    try
     {
+        using var scope = app.Services.CreateScope();
         var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
@@ -78,6 +79,12 @@ try
             await userManager.CreateAsync(admin, "Admin123!");
             await userManager.AddToRoleAsync(admin, "Admin");
         }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("=== ERROR EN MIGRACIÓN/SEED ===");
+        Console.WriteLine(ex.ToString());
+        // La app continúa — el error de BD no debe impedir que IIS reciba la respuesta
     }
 
     var supportedCultures = new[] { new CultureInfo("es-CO") };
@@ -111,6 +118,5 @@ catch (Exception ex)
 {
     Console.WriteLine("=== ERROR AL INICIAR LA APP ===");
     Console.WriteLine(ex.ToString());
-    Console.WriteLine("Presione cualquier tecla para cerrar...");
-    Console.ReadKey();
+    throw;
 }

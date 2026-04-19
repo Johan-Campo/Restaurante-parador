@@ -267,24 +267,17 @@
 
         <partial name="_Notification" />
 
-        @await RenderSectionAsync("Scripts", required: false)
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
         <script>
         function showToast(type, title, message) {
-            toastr.options = {
-                "closeButton": true,
-                "progressBar": true,
-                "positionClass": "toast-top-right",
-                "timeOut": "4000"
-            };
-
             switch(type) {
                 case 'success': toastr.success(message, title); break;
-                case 'error': toastr.error(message, title); break;
+                case 'error':   toastr.error(message, title);   break;
                 case 'warning': toastr.warning(message, title); break;
-                case 'info': toastr.info(message, title); break;
+                case 'info':    toastr.info(message, title);    break;
             }
         }
-    </script>
+        </script>
+
+        @await RenderSectionAsync("Scripts", required: false)
        </body>
         </html>
