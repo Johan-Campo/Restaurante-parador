@@ -48,43 +48,53 @@ try
 
     var app = builder.Build();
 
-    // ── Migraciones y seed de roles/admin ─────────────────────────────────────
-    try
+    // ── Migraciones y seed de roles/admin (con reintentos) ───────────────────
+    const int maxIntentos = 5;
+    for (int intento = 1; intento <= maxIntentos; intento++)
     {
-        using var scope = app.Services.CreateScope();
-        var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        db.Database.Migrate();
-
-        string[] roles = { "Admin", "Mesero" };
-        foreach (var role in roles)
+        try
         {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
-        }
+            using var scope = app.Services.CreateScope();
+            var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
-        var adminEmail = "admin@parador.com";
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
-        {
-            var admin = new ApplicationUser
+            db.Database.Migrate();
+
+            string[] roles = { "Admin", "Mesero" };
+            foreach (var role in roles)
             {
-                UserName       = adminEmail,
-                Email          = adminEmail,
-                EmailConfirmed = true,
-                Nombre         = "Admin",
-                Apellido       = "Parador"
-            };
-            await userManager.CreateAsync(admin, "Admin123!");
-            await userManager.AddToRoleAsync(admin, "Admin");
+                if (!await roleManager.RoleExistsAsync(role))
+                    await roleManager.CreateAsync(new IdentityRole(role));
+            }
+
+            var adminEmail = "admin@parador.com";
+            if (await userManager.FindByEmailAsync(adminEmail) == null)
+            {
+                var admin = new ApplicationUser
+                {
+                    UserName       = adminEmail,
+                    Email          = adminEmail,
+                    EmailConfirmed = true,
+                    Nombre         = "Admin",
+                    Apellido       = "Parador"
+                };
+                await userManager.CreateAsync(admin, "Admin123!");
+                await userManager.AddToRoleAsync(admin, "Admin");
+            }
+
+            Console.WriteLine($"=== MIGRACIÓN/SEED COMPLETADA (intento {intento}) ===");
+            break;
         }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("=== ERROR EN MIGRACIÓN/SEED ===");
-        Console.WriteLine(ex.ToString());
-        // La app continúa — el error de BD no debe impedir que IIS reciba la respuesta
+        catch (Exception ex)
+        {
+            Console.WriteLine($"=== ERROR MIGRACIÓN/SEED (intento {intento}/{maxIntentos}) ===");
+            Console.WriteLine(ex.Message);
+            if (intento == maxIntentos)
+                Console.WriteLine("Se agotaron los reintentos. La app inicia sin migración.");
+            else
+                await Task.Delay(TimeSpan.FromSeconds(intento * 5));
+        }
     }
 
     var supportedCultures = new[] { new CultureInfo("es-CO") };
