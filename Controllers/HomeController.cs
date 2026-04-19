@@ -54,6 +54,9 @@ namespace DropDownsAnidadosMvc.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            var ex = HttpContext.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerPathFeature>();
+            ViewBag.ExceptionMessage = ex?.Error?.ToString() ?? "Sin detalle";
+            ViewBag.ExceptionPath    = ex?.Path ?? "";
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
