@@ -1,4 +1,5 @@
 using DropDownsAnidadosMvc.Datos;
+using DropDownsAnidadosMvc.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Authorization;
@@ -15,16 +16,23 @@ try
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseSqlServer(connectionString));
 
-    builder.Services.AddDefaultIdentity<IdentityUser>(options =>
+    builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
     {
         options.SignIn.RequireConfirmedAccount = false;
     })
-    .AddRoles<IdentityRole>()          // Habilita RoleManager — sin esto los roles no funcionan
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
     builder.Services.ConfigureApplicationCookie(options =>
     {
         options.LoginPath = "/Identity/Account/Login";
+    });
+
+    builder.Services.AddSession(options =>
+    {
+        options.IdleTimeout = TimeSpan.FromHours(8);
+        options.Cookie.HttpOnly = true;
+        options.Cookie.IsEssential = true;
     });
 
     builder.Services.AddControllersWithViews(options =>
@@ -45,12 +53,10 @@ try
     {
         var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
+        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
 
         db.Database.Migrate();
 
-        // Crear roles si no existen — se ejecuta en cada arranque sin problema
-        // porque la condición verifica primero si ya existen.
         string[] roles = { "Admin", "Mesero" };
         foreach (var role in roles)
         {
@@ -58,16 +64,16 @@ try
                 await roleManager.CreateAsync(new IdentityRole(role));
         }
 
-        // Crear usuario Admin por defecto si no existe
-        // Cambia la contraseña después del primer login desde el panel de usuarios.
         var adminEmail = "admin@parador.com";
         if (await userManager.FindByEmailAsync(adminEmail) == null)
         {
-            var admin = new IdentityUser
+            var admin = new ApplicationUser
             {
                 UserName       = adminEmail,
                 Email          = adminEmail,
-                EmailConfirmed = true
+                EmailConfirmed = true,
+                Nombre         = "Admin",
+                Apellido       = "Parador"
             };
             await userManager.CreateAsync(admin, "Admin123!");
             await userManager.AddToRoleAsync(admin, "Admin");
@@ -90,6 +96,7 @@ try
 
     app.UseStaticFiles();
     app.UseRouting();
+    app.UseSession();
     app.UseAuthentication();
     app.UseAuthorization();
 

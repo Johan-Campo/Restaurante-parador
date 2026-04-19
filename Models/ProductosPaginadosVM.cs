@@ -6,7 +6,7 @@ namespace DropDownsAnidadosMvc.Models
         public List<Producto> Productos { get; set; } = new();
 
         // Texto que el usuario escribió en el buscador
-        public string? Buscar { get; set; }
+        public string Buscar { get; set; }
 
         // Página que se está viendo ahora (empieza en 1)
         public int PaginaActual { get; set; }

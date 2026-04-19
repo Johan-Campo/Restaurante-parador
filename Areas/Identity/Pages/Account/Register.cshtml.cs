@@ -10,6 +10,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using DropDownsAnidadosMvc.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -23,17 +24,17 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<IdentityUser> _signInManager;
-        private readonly UserManager<IdentityUser> _userManager;
-        private readonly IUserStore<IdentityUser> _userStore;
-        private readonly IUserEmailStore<IdentityUser> _emailStore;
+        private readonly SignInManager<ApplicationUser> _signInManager;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IUserStore<ApplicationUser> _userStore;
+        private readonly IUserEmailStore<ApplicationUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
 
         public RegisterModel(
-            UserManager<IdentityUser> userManager,
-            IUserStore<IdentityUser> userStore,
-            SignInManager<IdentityUser> signInManager,
+            UserManager<ApplicationUser> userManager,
+            IUserStore<ApplicationUser> userStore,
+            SignInManager<ApplicationUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -45,31 +46,25 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
             _emailSender = emailSender;
         }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public string ReturnUrl { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
-        /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
-        /// </summary>
         public class InputModel
         {
+            [Required(ErrorMessage = "El nombre es obligatorio")]
+            [StringLength(50, MinimumLength = 1, ErrorMessage = "El nombre debe tener al menos 1 carácter")]
+            [Display(Name = "Nombre")]
+            public string Nombre { get; set; }
+
+            [Required(ErrorMessage = "El apellido es obligatorio")]
+            [StringLength(50, MinimumLength = 1, ErrorMessage = "El apellido debe tener al menos 1 carácter")]
+            [Display(Name = "Apellido")]
+            public string Apellido { get; set; }
+
             [Required(ErrorMessage = "El correo es obligatorio")]
             [EmailAddress(ErrorMessage = "El correo no tiene un formato válido")]
             [Display(Name = "Correo electrónico")]
@@ -104,6 +99,8 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+                user.Nombre = Input.Nombre;
+                user.Apellido = Input.Apellido;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -111,21 +108,8 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
 
                 if (result.Succeeded)
                 {
-                    // Todo usuario nuevo recibe el rol Mesero por defecto.
-                    // Solo el Admin puede cambiar roles desde el panel de usuarios.
                     await _userManager.AddToRoleAsync(user, "Mesero");
-
-                    _logger.LogInformation("User created a new account with password.");
-
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    var callbackUrl = Url.Page(
-                     "/Account/ConfirmEmail",
-                      pageHandler: null,
-                      values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                      protocol: Request.Scheme);
-                    _logger.LogInformation("Confirmation email skipped in development.");
+                    _logger.LogInformation("Usuario creado con contraseña.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {
@@ -143,31 +127,28 @@ namespace DropDownsAnidadosMvc.Areas.Identity.Pages.Account
                 }
             }
 
-            // If we got this far, something failed, redisplay form
             return Page();
         }
 
-        private IdentityUser CreateUser()
+        private ApplicationUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<IdentityUser>();
+                return Activator.CreateInstance<ApplicationUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(IdentityUser)}'. " +
-                    $"Ensure that '{nameof(IdentityUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+                throw new InvalidOperationException($"No se puede crear una instancia de '{nameof(ApplicationUser)}'.");
             }
         }
 
-        private IUserEmailStore<IdentityUser> GetEmailStore()
+        private IUserEmailStore<ApplicationUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
-                throw new NotSupportedException("The default UI requires a user store with email support.");
+                throw new NotSupportedException("La interfaz de usuario predeterminada requiere un almacén de usuarios con soporte para correo electrónico.");
             }
-            return (IUserEmailStore<IdentityUser>)_userStore;
+            return (IUserEmailStore<ApplicationUser>)_userStore;
         }
     }
 }

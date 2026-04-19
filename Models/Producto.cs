@@ -26,6 +26,6 @@ namespace DropDownsAnidadosMvc.Models
 
         public Categoria Categoria { get; set; }
 
-        public string? ImagenUrl { get; set; }
+        public string ImagenUrl { get; set; }
     }
 }

@@ -14,15 +14,15 @@ namespace DropDownsAnidadosMvc.Models
 
         [StringLength(80, ErrorMessage = "Máximo 80 caracteres")]
         [Display(Name = "Cliente")]
-        public string? NombreCliente { get; set; }
+        public string NombreCliente { get; set; }
 
         [StringLength(10)]
         [Display(Name = "Mesa")]
-        public string? NumeroMesa { get; set; }
+        public string NumeroMesa { get; set; }
 
         [StringLength(300, ErrorMessage = "Máximo 300 caracteres")]
         [Display(Name = "Observaciones")]
-        public string? Observaciones { get; set; }
+        public string Observaciones { get; set; }
 
         // Propiedad de navegación: lista de ítems del pedido.
         // EF Core la usa para cargar los productos relacionados con .Include().
