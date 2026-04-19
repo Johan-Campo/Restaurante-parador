@@ -15,7 +15,14 @@ namespace DropDownsAnidadosMvc.Datos
             _logger = logger;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        public Task StartAsync(CancellationToken cancellationToken)
+        {
+            // Fire-and-forget: no bloquea el arranque del servidor
+            _ = Task.Run(() => EjecutarAsync(cancellationToken), cancellationToken);
+            return Task.CompletedTask;
+        }
+
+        private async Task EjecutarAsync(CancellationToken cancellationToken)
         {
             const int maxIntentos = 6;
             for (int intento = 1; intento <= maxIntentos; intento++)
