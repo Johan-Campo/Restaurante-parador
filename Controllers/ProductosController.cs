@@ -22,7 +22,7 @@ namespace DropDownsAnidadosMvc.Controllers
         // GET: Productos
         // buscar y pagina llegan desde la URL: /Productos?buscar=pizza&pagina=2
         // ASP.NET los inyecta automáticamente en los parámetros (esto se llama model binding).
-        public async Task<IActionResult> Index(string? buscar, int pagina = 1)
+        public async Task<IActionResult> Index(string buscar, int pagina = 1)
         {
             const int tamanioPagina = 5;
 
@@ -88,13 +88,13 @@ namespace DropDownsAnidadosMvc.Controllers
 
         // POST: Productos/Create
         [Authorize(Roles = "Admin")]
-        // IFormFile? imagenFile → el archivo que llega desde el <input type="file"> del formulario.
+        // IFormFile imagenFile → el archivo que llega desde el <input type="file"> del formulario.
         // El nombre del parámetro debe coincidir exactamente con el name= del input HTML.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind("Id,Nombre,Precio,Descripcion,CategoriaId")] Producto producto,
-            IFormFile? imagenFile)
+            IFormFile imagenFile)
         {
             if (!_context.Categoria.Any(c => c.Id == producto.CategoriaId))
                 ModelState.AddModelError("", "La categoría seleccionada no es válida.");
@@ -158,7 +158,7 @@ namespace DropDownsAnidadosMvc.Controllers
         public async Task<IActionResult> Edit(
             int id,
             [Bind("Id,Nombre,Precio,Descripcion,CategoriaId,ImagenUrl")] Producto producto,
-            IFormFile? imagenFile)
+            IFormFile imagenFile)
         {
             if (id != producto.Id)
             {
@@ -272,7 +272,7 @@ namespace DropDownsAnidadosMvc.Controllers
 
         // Guarda el archivo en wwwroot/images/productos/ y devuelve la URL relativa.
         // Devuelve null si el formato no es válido o el archivo supera 5 MB.
-        private async Task<string?> GuardarImagenAsync(IFormFile archivo)
+        private async Task<string> GuardarImagenAsync(IFormFile archivo)
         {
             const long maxBytes = 5 * 1024 * 1024; // 5 MB
             var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
@@ -294,7 +294,7 @@ namespace DropDownsAnidadosMvc.Controllers
         }
 
         // Elimina el archivo físico de wwwroot dado su URL relativa.
-        private void EliminarImagen(string? imagenUrl)
+        private void EliminarImagen(string imagenUrl)
         {
             if (string.IsNullOrEmpty(imagenUrl)) return;
             var rutaFisica = Path.Combine(_env.WebRootPath, imagenUrl.TrimStart('/'));

@@ -8,15 +8,15 @@ namespace DropDownsAnidadosMvc.Models
     {
         [StringLength(80)]
         [Display(Name = "Cliente")]
-        public string? NombreCliente { get; set; }
+        public string NombreCliente { get; set; }
 
         [StringLength(10)]
         [Display(Name = "Mesa")]
-        public string? NumeroMesa { get; set; }
+        public string NumeroMesa { get; set; }
 
         [StringLength(300)]
         [Display(Name = "Observaciones")]
-        public string? Observaciones { get; set; }
+        public string Observaciones { get; set; }
 
         // Lista de todos los productos disponibles, cada uno con su campo de cantidad.
         // ASP.NET MVC enlaza automáticamente Items[0].Cantidad, Items[1].Cantidad, etc.
@@ -31,7 +31,7 @@ namespace DropDownsAnidadosMvc.Models
         public string NombreProducto { get; set; } = "";
         public string NombreCategoria { get; set; } = "";
         public decimal Precio { get; set; }
-        public string? ImagenUrl { get; set; }
+        public string ImagenUrl { get; set; }
 
         // Cantidad que el usuario escribe. 0 = no incluir en el pedido.
         [Range(0, 99, ErrorMessage = "Entre 0 y 99")]
