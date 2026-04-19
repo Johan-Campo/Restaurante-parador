@@ -111,6 +111,5 @@ catch (Exception ex)
 {
     Console.WriteLine("=== ERROR AL INICIAR LA APP ===");
     Console.WriteLine(ex.ToString());
-    Console.WriteLine("Presione cualquier tecla para cerrar...");
-    Console.ReadKey();
+    throw;
 }
