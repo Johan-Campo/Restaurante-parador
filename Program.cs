@@ -47,56 +47,9 @@ try
         options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Register");
     });
 
+    builder.Services.AddHostedService<DatabaseInitializer>();
+
     var app = builder.Build();
-
-    // ── Migraciones y seed de roles/admin (con reintentos) ───────────────────
-    const int maxIntentos = 5;
-    for (int intento = 1; intento <= maxIntentos; intento++)
-    {
-        try
-        {
-            using var scope = app.Services.CreateScope();
-            var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-            db.Database.Migrate();
-
-            string[] roles = { "Admin", "Mesero" };
-            foreach (var role in roles)
-            {
-                if (!await roleManager.RoleExistsAsync(role))
-                    await roleManager.CreateAsync(new IdentityRole(role));
-            }
-
-            var adminEmail = "admin@parador.com";
-            if (await userManager.FindByEmailAsync(adminEmail) == null)
-            {
-                var admin = new ApplicationUser
-                {
-                    UserName       = adminEmail,
-                    Email          = adminEmail,
-                    EmailConfirmed = true,
-                    Nombre         = "Admin",
-                    Apellido       = "Parador"
-                };
-                await userManager.CreateAsync(admin, "Admin123!");
-                await userManager.AddToRoleAsync(admin, "Admin");
-            }
-
-            Console.WriteLine($"=== MIGRACIÓN/SEED COMPLETADA (intento {intento}) ===");
-            break;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"=== ERROR MIGRACIÓN/SEED (intento {intento}/{maxIntentos}) ===");
-            Console.WriteLine(ex.Message);
-            if (intento == maxIntentos)
-                Console.WriteLine("Se agotaron los reintentos. La app inicia sin migración.");
-            else
-                await Task.Delay(TimeSpan.FromSeconds(intento * 5));
-        }
-    }
 
     var supportedCultures = new[] { new CultureInfo("es-CO") };
     app.UseRequestLocalization(new RequestLocalizationOptions
