@@ -28,6 +28,7 @@ try
         options.LoginPath = "/Identity/Account/Login";
     });
 
+    builder.Services.AddDistributedMemoryCache();
     builder.Services.AddSession(options =>
     {
         options.IdleTimeout = TimeSpan.FromHours(8);
@@ -46,46 +47,9 @@ try
         options.Conventions.AllowAnonymousToAreaPage("Identity", "/Account/Register");
     });
 
+    builder.Services.AddHostedService<DatabaseInitializer>();
+
     var app = builder.Build();
-
-    // ── Migraciones y seed de roles/admin ─────────────────────────────────────
-    try
-    {
-        using var scope = app.Services.CreateScope();
-        var db          = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-        var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-
-        db.Database.Migrate();
-
-        string[] roles = { "Admin", "Mesero" };
-        foreach (var role in roles)
-        {
-            if (!await roleManager.RoleExistsAsync(role))
-                await roleManager.CreateAsync(new IdentityRole(role));
-        }
-
-        var adminEmail = "admin@parador.com";
-        if (await userManager.FindByEmailAsync(adminEmail) == null)
-        {
-            var admin = new ApplicationUser
-            {
-                UserName       = adminEmail,
-                Email          = adminEmail,
-                EmailConfirmed = true,
-                Nombre         = "Admin",
-                Apellido       = "Parador"
-            };
-            await userManager.CreateAsync(admin, "Admin123!");
-            await userManager.AddToRoleAsync(admin, "Admin");
-        }
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine("=== ERROR EN MIGRACIÓN/SEED ===");
-        Console.WriteLine(ex.ToString());
-        // La app continúa — el error de BD no debe impedir que IIS reciba la respuesta
-    }
 
     var supportedCultures = new[] { new CultureInfo("es-CO") };
     app.UseRequestLocalization(new RequestLocalizationOptions
