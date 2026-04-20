@@ -10,6 +10,9 @@
     /* Panel de imagen */
     .img-panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
     .img-panel-head{padding:12px 16px;background:var(--g800);} .img-panel-head h6{font-size:.82rem;color:#fff;margin:0;font-weight:600;} .img-panel-head p{font-size:.68rem;color:rgba(255,255,255,.5);margin:2px 0 0;}
+    .img-tabs{display:flex;border-bottom:1px solid var(--border);}
+    .img-tab{flex:1;padding:7px 4px;font-size:.73rem;font-weight:600;text-align:center;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+    .img-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
     .img-preview-wrap{padding:16px;display:flex;flex-direction:column;gap:12px;}
     .img-preview-box{width:100%;aspect-ratio:1/1;border-radius:10px;border:2px dashed var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;position:relative;transition:border-color .2s;}
     .img-preview-box:hover{border-color:var(--accent);}
@@ -21,6 +24,8 @@
     .btn-upload:hover{background:var(--g100);color:var(--g800);}
     #fileInput{display:none;}
     .img-hint{font-size:.68rem;color:var(--muted);text-align:center;line-height:1.4;}
+    .url-input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--text);outline:none;transition:border-color .15s;}
+    .url-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(181,135,63,.1);}
 
     /* Panel de campos */
     .fields-panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
@@ -47,28 +52,45 @@
 
     <div class="form-layout">
 
-        <!-- Panel izquierdo: subir imagen -->
+        <!-- Panel izquierdo: imagen -->
         <div class="img-panel">
             <div class="img-panel-head">
                 <h6><i class="fas fa-image" style="margin-right:5px;"></i>Imagen</h6>
-                <p>Opcional · JPG, PNG, WEBP</p>
+                <p>Opcional · archivo o URL</p>
+            </div>
+            <div class="img-tabs">
+                <button type="button" class="img-tab active" onclick="switchTab('archivo')">
+                    <i class="fas fa-upload"></i> Archivo
+                </button>
+                <button type="button" class="img-tab" onclick="switchTab('url')">
+                    <i class="fas fa-link"></i> URL
+                </button>
             </div>
             <div class="img-preview-wrap">
-                <div class="img-preview-box" onclick="document.getElementById('fileInput').click()" style="cursor:pointer;">
+                <!-- Preview compartido -->
+                <div class="img-preview-box" id="previewBox" onclick="onPreviewClick()" style="cursor:pointer;">
                     <img id="previewImg" alt="Preview" />
                     <div class="img-placeholder" id="imgPlaceholder">
                         <i class="fas fa-cloud-upload-alt"></i>
-                        <span>Haz clic para<br>seleccionar imagen</span>
+                        <span id="placeholderText">Haz clic para<br>seleccionar imagen</span>
                     </div>
                 </div>
 
-                @* El name="imagenFile" debe coincidir con el parámetro IFormFile del controlador *@
-                <input type="file" id="fileInput" name="imagenFile" accept=".jpg,.jpeg,.png,.webp" />
+                <!-- Modo archivo -->
+                <div id="modoArchivo">
+                    <input type="file" id="fileInput" name="imagenFile" accept=".jpg,.jpeg,.png,.webp" />
+                    <label for="fileInput" class="btn-upload">
+                        <i class="fas fa-folder-open"></i> Explorar archivo
+                    </label>
+                    <p class="img-hint">Máximo 5 MB · JPG, PNG, WEBP</p>
+                </div>
 
-                <label for="fileInput" class="btn-upload">
-                    <i class="fas fa-folder-open"></i> Explorar archivo
-                </label>
-                <p class="img-hint">Máximo 5 MB.<br>Se guarda en el servidor.</p>
+                <!-- Modo URL -->
+                <div id="modoUrl" style="display:none;display:flex;flex-direction:column;gap:8px;">
+                    <input type="url" id="urlInput" name="imagenUrlExterna"
+                           class="url-input" placeholder="https://ejemplo.com/imagen.jpg" />
+                    <p class="img-hint">Pega la URL de cualquier imagen pública</p>
+                </div>
             </div>
         </div>
 
@@ -121,20 +143,63 @@
 </form>
 
 <script>
-    // Preview en vivo: cuando el usuario elige un archivo, mostramos la imagen al instante
-    // sin necesidad de subirla al servidor. URL.createObjectURL() crea una URL temporal en
-    // la memoria del navegador que apunta al archivo local.
+    let modoActual = 'archivo';
+
+    function switchTab(modo) {
+        modoActual = modo;
+        document.querySelectorAll('.img-tab').forEach((t, i) => {
+            t.classList.toggle('active', (i === 0) === (modo === 'archivo'));
+        });
+        document.getElementById('modoArchivo').style.display = modo === 'archivo' ? 'flex' : 'none';
+        document.getElementById('modoUrl').style.display     = modo === 'url'     ? 'flex' : 'none';
+
+        // Limpiar el modo que se abandona
+        if (modo === 'archivo') {
+            document.getElementById('urlInput').value = '';
+        } else {
+            document.getElementById('fileInput').value = '';
+        }
+
+        document.getElementById('placeholderText').innerHTML =
+            modo === 'archivo' ? 'Haz clic para<br>seleccionar imagen' : 'Previsualización URL';
+        document.getElementById('previewBox').style.cursor = modo === 'archivo' ? 'pointer' : 'default';
+    }
+
+    function onPreviewClick() {
+        if (modoActual === 'archivo')
+            document.getElementById('fileInput').click();
+    }
+
+    // Preview desde archivo
     document.getElementById('fileInput').addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-
-        const preview = document.getElementById('previewImg');
-        const placeholder = document.getElementById('imgPlaceholder');
-
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = 'block';
-        placeholder.style.display = 'none';
+        setPreview(URL.createObjectURL(file));
     });
+
+    // Preview desde URL (al dejar de escribir)
+    document.getElementById('urlInput').addEventListener('input', function () {
+        const url = this.value.trim();
+        if (url) setPreview(url);
+        else clearPreview();
+    });
+
+    function setPreview(src) {
+        const img = document.getElementById('previewImg');
+        img.src = src;
+        img.style.display = 'block';
+        document.getElementById('imgPlaceholder').style.display = 'none';
+    }
+
+    function clearPreview() {
+        const img = document.getElementById('previewImg');
+        img.style.display = 'none';
+        document.getElementById('imgPlaceholder').style.display = 'flex';
+    }
+
+    // Inicializar display del modo archivo
+    document.getElementById('modoArchivo').style.display = 'flex';
+    document.getElementById('modoUrl').style.display = 'none';
 </script>
 
 @section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }
