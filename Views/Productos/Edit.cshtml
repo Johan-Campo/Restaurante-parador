@@ -9,8 +9,11 @@
 
     .img-panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
     .img-panel-head{padding:12px 16px;background:var(--g800);} .img-panel-head h6{font-size:.82rem;color:#fff;margin:0;font-weight:600;} .img-panel-head p{font-size:.68rem;color:rgba(255,255,255,.5);margin:2px 0 0;}
+    .img-tabs{display:flex;border-bottom:1px solid var(--border);}
+    .img-tab{flex:1;padding:7px 4px;font-size:.73rem;font-weight:600;text-align:center;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;border-bottom:2px solid transparent;margin-bottom:-1px;}
+    .img-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
     .img-preview-wrap{padding:16px;display:flex;flex-direction:column;gap:12px;}
-    .img-preview-box{width:100%;aspect-ratio:1/1;border-radius:10px;border:2px dashed var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;transition:border-color .2s;}
+    .img-preview-box{width:100%;aspect-ratio:1/1;border-radius:10px;border:2px dashed var(--border);background:var(--surface);display:flex;align-items:center;justify-content:center;overflow:hidden;transition:border-color .2s;}
     .img-preview-box:hover{border-color:var(--accent);}
     #previewImg{width:100%;height:100%;object-fit:cover;}
     .img-placeholder{display:flex;flex-direction:column;align-items:center;gap:8px;color:var(--muted);}
@@ -21,6 +24,8 @@
     #fileInput{display:none;}
     .img-hint{font-size:.68rem;color:var(--muted);text-align:center;line-height:1.4;}
     .current-img-note{font-size:.7rem;color:var(--g600);background:var(--g50);border:1px solid var(--g100);border-radius:6px;padding:5px 8px;text-align:center;}
+    .url-input{width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--text);outline:none;transition:border-color .15s;}
+    .url-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(181,135,63,.1);}
 
     .fields-panel{background:#fff;border-radius:14px;border:1px solid var(--border);overflow:hidden;}
     .card-head{padding:15px 22px;background:var(--g800);display:flex;align-items:center;gap:11px;} .card-head-icon{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.85);font-size:.95rem;flex-shrink:0;} .card-head h5{font-size:.95rem;color:#fff;margin:0;font-weight:600;} .card-head p{font-size:.72rem;color:rgba(255,255,255,.5);margin:1px 0 0;}
@@ -53,39 +58,57 @@
 
     <div class="form-layout">
 
-        <!-- Panel izquierdo: imagen actual + opción de reemplazar -->
+        <!-- Panel izquierdo: imagen -->
         <div class="img-panel">
             <div class="img-panel-head">
                 <h6><i class="fas fa-image" style="margin-right:5px;"></i>Imagen</h6>
-                <p>Actual · o reemplazar</p>
+                <p>Actual · archivo o URL</p>
+            </div>
+            <div class="img-tabs">
+                <button type="button" class="img-tab active" onclick="switchTab('archivo')">
+                    <i class="fas fa-upload"></i> Archivo
+                </button>
+                <button type="button" class="img-tab" onclick="switchTab('url')">
+                    <i class="fas fa-link"></i> URL
+                </button>
             </div>
             <div class="img-preview-wrap">
-                <div class="img-preview-box" onclick="document.getElementById('fileInput').click()">
+                <!-- Preview compartido -->
+                <div class="img-preview-box" id="previewBox" onclick="onPreviewClick()" style="cursor:pointer;">
                     @if (!string.IsNullOrEmpty(Model.ImagenUrl))
                     {
-                        <img id="previewImg" src="@Model.ImagenUrl" alt="@Model.Nombre" />
+                        <img id="previewImg" src="@Model.ImagenUrl" alt="@Model.Nombre" style="width:100%;height:100%;object-fit:cover;" />
+                        <div class="img-placeholder" id="imgPlaceholder" style="display:none;">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span id="placeholderText">Haz clic para<br>seleccionar imagen</span>
+                        </div>
                     }
                     else
                     {
-                        <img id="previewImg" alt="Preview" style="display:none;" />
+                        <img id="previewImg" alt="Preview" style="display:none;width:100%;height:100%;object-fit:cover;" />
                         <div class="img-placeholder" id="imgPlaceholder">
                             <i class="fas fa-cloud-upload-alt"></i>
-                            <span>Haz clic para<br>seleccionar imagen</span>
+                            <span id="placeholderText">Haz clic para<br>seleccionar imagen</span>
                         </div>
                     }
                 </div>
 
-                <input type="file" id="fileInput" name="imagenFile" accept=".jpg,.jpeg,.png,.webp" />
-                <label for="fileInput" class="btn-upload">
-                    <i class="fas fa-folder-open"></i>
-                    @(string.IsNullOrEmpty(Model.ImagenUrl) ? "Explorar archivo" : "Cambiar imagen")
-                </label>
+                <!-- Modo archivo -->
+                <div id="modoArchivo" style="display:flex;flex-direction:column;gap:8px;">
+                    <input type="file" id="fileInput" name="imagenFile" accept=".jpg,.jpeg,.png,.webp" />
+                    <label for="fileInput" class="btn-upload">
+                        <i class="fas fa-folder-open"></i>
+                        @(string.IsNullOrEmpty(Model.ImagenUrl) ? "Explorar archivo" : "Cambiar imagen")
+                    </label>
+                    <p class="img-hint">Máximo 5 MB · JPG, PNG, WEBP<br>Si no cambias nada, se mantiene la imagen actual.</p>
+                </div>
 
-                @if (!string.IsNullOrEmpty(Model.ImagenUrl))
-                {
-                    <p class="current-img-note"><i class="fas fa-info-circle"></i> Si no eliges nueva imagen, se mantiene la actual.</p>
-                }
-                <p class="img-hint">Máximo 5 MB · JPG, PNG, WEBP</p>
+                <!-- Modo URL -->
+                <div id="modoUrl" style="display:none;flex-direction:column;gap:8px;">
+                    <input type="url" id="urlInput" name="imagenUrlExterna"
+                           class="url-input" placeholder="https://ejemplo.com/imagen.jpg" />
+                    <p class="img-hint">Pega la URL de cualquier imagen pública</p>
+                </div>
             </div>
         </div>
 
@@ -136,17 +159,54 @@
 </form>
 
 <script>
+    let modoActual = 'archivo';
+
+    function switchTab(modo) {
+        modoActual = modo;
+        document.querySelectorAll('.img-tab').forEach((t, i) => {
+            t.classList.toggle('active', (i === 0) === (modo === 'archivo'));
+        });
+        document.getElementById('modoArchivo').style.display = modo === 'archivo' ? 'flex' : 'none';
+        document.getElementById('modoUrl').style.display     = modo === 'url'     ? 'flex' : 'none';
+
+        if (modo === 'archivo') {
+            document.getElementById('urlInput').value = '';
+        } else {
+            document.getElementById('fileInput').value = '';
+        }
+
+        document.getElementById('previewBox').style.cursor = modo === 'archivo' ? 'pointer' : 'default';
+    }
+
+    function onPreviewClick() {
+        if (modoActual === 'archivo')
+            document.getElementById('fileInput').click();
+    }
+
     document.getElementById('fileInput').addEventListener('change', function () {
         const file = this.files[0];
         if (!file) return;
-
-        const preview = document.getElementById('previewImg');
-        const placeholder = document.getElementById('imgPlaceholder');
-
-        preview.src = URL.createObjectURL(file);
-        preview.style.display = 'block';
-        if (placeholder) placeholder.style.display = 'none';
+        setPreview(URL.createObjectURL(file));
     });
+
+    document.getElementById('urlInput').addEventListener('input', function () {
+        const url = this.value.trim();
+        if (url) setPreview(url);
+        else clearPreview();
+    });
+
+    function setPreview(src) {
+        const img = document.getElementById('previewImg');
+        img.src = src;
+        img.style.display = 'block';
+        document.getElementById('imgPlaceholder').style.display = 'none';
+    }
+
+    function clearPreview() {
+        const img = document.getElementById('previewImg');
+        img.style.display = 'none';
+        document.getElementById('imgPlaceholder').style.display = 'flex';
+    }
 </script>
 
 @section Scripts { @{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); } }

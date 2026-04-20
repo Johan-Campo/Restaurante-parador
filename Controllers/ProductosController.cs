@@ -88,13 +88,12 @@ namespace DropDownsAnidadosMvc.Controllers
 
         // POST: Productos/Create
         [Authorize(Roles = "Admin")]
-        // IFormFile imagenFile → el archivo que llega desde el <input type="file"> del formulario.
-        // El nombre del parámetro debe coincidir exactamente con el name= del input HTML.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             [Bind("Id,Nombre,Precio,Descripcion,CategoriaId")] Producto producto,
-            IFormFile imagenFile)
+            IFormFile imagenFile,
+            string imagenUrlExterna)
         {
             if (!_context.Categoria.Any(c => c.Id == producto.CategoriaId))
                 ModelState.AddModelError("", "La categoría seleccionada no es válida.");
@@ -106,6 +105,10 @@ namespace DropDownsAnidadosMvc.Controllers
                     ModelState.AddModelError("", "Solo se permiten imágenes JPG, PNG o WEBP (máx. 5 MB).");
                 else
                     producto.ImagenUrl = urlImagen;
+            }
+            else if (!string.IsNullOrWhiteSpace(imagenUrlExterna))
+            {
+                producto.ImagenUrl = imagenUrlExterna.Trim();
             }
 
             if (ModelState.IsValid)
@@ -151,14 +154,13 @@ namespace DropDownsAnidadosMvc.Controllers
 
         // POST: Productos/Edit/5
         [Authorize(Roles = "Admin")]
-        // Incluimos ImagenUrl en el Bind para que el campo oculto del formulario
-        // preserve la URL de la imagen anterior cuando no se sube una nueva.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(
             int id,
             [Bind("Id,Nombre,Precio,Descripcion,CategoriaId,ImagenUrl")] Producto producto,
-            IFormFile imagenFile)
+            IFormFile imagenFile,
+            string imagenUrlExterna)
         {
             if (id != producto.Id)
             {
@@ -168,15 +170,21 @@ namespace DropDownsAnidadosMvc.Controllers
 
             if (imagenFile != null && imagenFile.Length > 0)
             {
-                // Si el usuario sube una imagen nueva, eliminamos la anterior y guardamos la nueva.
-                EliminarImagen(producto.ImagenUrl);
+                if (producto.ImagenUrl?.StartsWith("/images/") == true)
+                    EliminarImagen(producto.ImagenUrl);
                 var urlImagen = await GuardarImagenAsync(imagenFile);
                 if (urlImagen == null)
                     ModelState.AddModelError("", "Solo se permiten imágenes JPG, PNG o WEBP (máx. 5 MB).");
                 else
                     producto.ImagenUrl = urlImagen;
             }
-            // Si no se sube archivo, producto.ImagenUrl conserva el valor del campo oculto del form.
+            else if (!string.IsNullOrWhiteSpace(imagenUrlExterna))
+            {
+                if (producto.ImagenUrl?.StartsWith("/images/") == true)
+                    EliminarImagen(producto.ImagenUrl);
+                producto.ImagenUrl = imagenUrlExterna.Trim();
+            }
+            // Si ninguno, ImagenUrl conserva el valor del campo oculto del form.
 
             if (ModelState.IsValid)
             {
