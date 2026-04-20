@@ -9,13 +9,11 @@ namespace DropDownsAnidadosMvc.Controllers
     [Authorize(Roles = "Admin")]
     public class UsuariosController : Controller
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
 
-        // Inyectamos UserManager y RoleManager — son servicios de ASP.NET Identity
-        // registrados automáticamente por .AddRoles<IdentityRole>() en Program.cs
         public UsuariosController(
-            UserManager<IdentityUser> userManager,
+            UserManager<ApplicationUser> userManager,
             RoleManager<IdentityRole> roleManager)
         {
             _userManager = userManager;
