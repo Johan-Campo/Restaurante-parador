@@ -215,4 +215,4 @@ Contraseña: Admin123!
 
 ## Autor
 
-**Johan Campo** · Proyecto académico / portafolio personal
+**Johan Campo** · portafolio personal
